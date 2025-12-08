@@ -22,7 +22,7 @@ class User(SQLModel, table=True):
     email: str = Field(index=True, unique=True)
     hashed_password: str = Field(nullable=False)
     phone_number: str
-    is_agency: bool = False
+    is_agency: bool = Field(default=False)
 
     # Relationships
     created_events: list["Event"] = Relationship(back_populates="creator")
@@ -41,6 +41,7 @@ class Event(SQLModel, table=True):
     ticket_price: float
     vip_ticket_price: float
     creator_id: int = Field(foreign_key="user.id")
+    banner_url: str | None = Field(default=None)
 
     # Relationships
     creator: User = Relationship(back_populates="created_events")
