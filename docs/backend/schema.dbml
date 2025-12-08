@@ -1,0 +1,107 @@
+// Ticket Reservation System Database Schema
+// Generated from SQLModel models
+
+Project ticket_reservation {
+  database_type: 'PostgreSQL'
+  Note: 'Event ticket reservation and booking system'
+}
+
+// Enums
+Enum seat_type {
+  regular
+  vip
+}
+
+// Main Tables
+Table users {
+  id integer [pk, increment]
+  username varchar [unique, not null, note: 'Unique username']
+  email varchar [unique, not null, note: 'User email address']
+  hashed_password varchar [not null]
+  phone_number varchar [not null]
+  is_agency boolean [not null, note: 'True if user can create events']
+  
+  indexes {
+    username
+    email
+  }
+  
+  Note: 'Users can be regular users or agencies that create events'
+}
+
+Table events {
+  id integer [pk, increment]
+  title varchar [not null]
+  description text
+  location varchar [not null]
+  starts_at timestamp [not null]
+  ends_at timestamp [not null]
+  ticket_price float [not null]
+  vip_ticket_price float [not null]
+  creator_id integer [not null, ref: > users.id]
+  
+  indexes {
+    title
+    location
+    starts_at
+    ends_at
+  }
+  
+  Note: 'Events created by agencies with regular and VIP ticket pricing'
+}
+
+Table event_seats {
+  event_id integer [pk, ref: > events.id]
+  seat_number integer [pk]
+  seat_type seat_type [not null, default: 'regular']
+  is_available boolean [not null, default: true]
+  
+  Note: 'Seats for each event with composite primary key (event_id, seat_number)'
+}
+
+Table bookings {
+  id integer [pk, increment]
+  user_id integer [not null, ref: > users.id]
+  event_id integer [not null, ref: > events.id]
+  seat_number integer [not null]
+  purchased_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (event_id, seat_number) [unique, name: 'unique_booking_seat']
+  }
+  
+  Note: 'User bookings with composite foreign key to event_seats and unique constraint to prevent double-booking'
+}
+
+Table reviews {
+  id integer [pk, increment]
+  booking_id integer [unique, not null, ref: - bookings.id]
+  user_id integer [not null, ref: > users.id]
+  event_id integer [not null, ref: > events.id]
+  rating float [not null, note: 'Rating between 1.0 and 5.0']
+  comment text [not null]
+  created_at timestamp [not null, default: `now()`]
+  
+  Note: 'One review per booking. user_id and event_id are denormalized for query performance'
+}
+
+Table favorite_events {
+  user_id integer [pk, ref: > users.id]
+  event_id integer [pk, ref: > events.id]
+  
+  Note: 'Many-to-many relationship for users favoriting events'
+}
+
+// Composite Foreign Key (not directly supported in DBML, documented here)
+// bookings.(event_id, seat_number) -> event_seats.(event_id, seat_number)
+
+// Relationships Summary:
+// - User (agency) creates many Events (one-to-many)
+// - Event has many EventSeats (one-to-many)
+// - User makes many Bookings (one-to-many)
+// - Event has many Bookings (one-to-many)
+// - Booking references one EventSeat via composite FK (many-to-one)
+// - Booking has one Review (one-to-one)
+// - User has many Reviews (one-to-many)
+// - Event has many Reviews (one-to-many)
+// - Users can favorite many Events (many-to-many via favorite_events)
