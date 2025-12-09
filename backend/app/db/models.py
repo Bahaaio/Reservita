@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
 from sqlalchemy import ForeignKeyConstraint, UniqueConstraint
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class SeatType(str, Enum):
@@ -18,7 +19,7 @@ class FavoriteEvent(SQLModel, table=True):
 # Main Tables
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    username: str = Field(index=True, unique=True)
+    full_name: str = Field(nullable=False)
     email: str = Field(index=True, unique=True)
     hashed_password: str = Field(nullable=False)
     phone_number: str

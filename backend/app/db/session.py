@@ -1,9 +1,8 @@
 from typing import Annotated
-from fastapi import Depends
-from sqlmodel import SQLModel, Session, create_engine
-import app.db.models
 
 from app.core import config
+from fastapi import Depends
+from sqlmodel import Session, SQLModel, create_engine
 
 engine = create_engine(config.DATABASE_URL)
 
