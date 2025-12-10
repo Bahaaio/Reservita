@@ -8,9 +8,9 @@ from app.dto.auth import (
     UserResponse,
 )
 from app.services.auth import AuthServiceDep, CurrentUser
-from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi import APIRouter, Form, UploadFile, status
 from fastapi.responses import FileResponse
-from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 
 router = APIRouter(prefix="/auth")
 
@@ -23,20 +23,14 @@ def register(
     return auth_service.register_user(request)
 
 
-# TODO: add explicit /login
-
-
 @router.post("/token")
 def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    username: Annotated[EmailStr, Form()],
+    password: Annotated[str, Form(min_length=8)],
     auth_service: AuthServiceDep,
 ) -> Token:
-    """
-    **Note:** Use email address in the 'username' field.
-    """
-    return auth_service.login_user(
-        email=form_data.username, password=form_data.password
-    )
+    """**Note:** Use email address in the 'username' field."""
+    return auth_service.login_user(username, password)
 
 
 @router.get("/me")

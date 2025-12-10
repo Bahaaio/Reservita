@@ -1,7 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel
 
 from app.db.models import EventCategory
+from pydantic import BaseModel
 
 
 class EventRequest(BaseModel):
