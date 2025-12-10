@@ -8,7 +8,8 @@ from app.dto.auth import (
     UserResponse,
 )
 from app.services.auth import AuthServiceDep, CurrentUser
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/auth")
@@ -52,3 +53,20 @@ def update_profile(
     auth_service: AuthServiceDep,
 ) -> UserResponse:
     return auth_service.update_profile(current_user, request)
+
+
+@router.get("/me/avatar")
+def get_avatar(current_user: CurrentUser, auth_service: AuthServiceDep) -> FileResponse:
+    return auth_service.get_avatar(current_user)
+
+
+@router.put("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+def upload_avatar(
+    file: UploadFile, current_user: CurrentUser, auth_service: AuthServiceDep
+):
+    return auth_service.upload_avatar(current_user, file)
+
+
+@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+def delete_avatar(current_user: CurrentUser, auth_service: AuthServiceDep):
+    return auth_service.delete_avatar(current_user)

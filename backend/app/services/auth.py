@@ -1,5 +1,7 @@
+import os
 from typing import Annotated
 
+from app.core import config
 from app.core.security import (
     TokenData,
     create_access_token,
@@ -18,7 +20,14 @@ from app.dto.auth import (
     UserResponse,
 )
 from app.exceptions.auth import EmailAlreadyTakenError, InvalidCredentialsError
-from fastapi import Depends
+from app.util.files import (
+    delete_file,
+    get_file_response,
+    save_file,
+    validate_image_file,
+)
+from fastapi import Depends, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from sqlmodel import select
 
 
@@ -74,6 +83,18 @@ class AuthService:
         self.db.refresh(user)
 
         return UserResponse.model_validate(user)
+
+    def get_avatar(self, user: User) -> FileResponse:
+        avatar_path = os.path.join(config.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+        return get_file_response(avatar_path, media_type="image/jpeg")
+
+    def upload_avatar(self, user: User, file: UploadFile):
+        validate_image_file(file, max_size_mb=config.MAX_AVATAR_SIZE_MB)
+        save_file(file, config.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+
+    def delete_avatar(self, user: User):
+        avatar_path = os.path.join(config.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+        delete_file(avatar_path)
 
 
 def get_current_user(

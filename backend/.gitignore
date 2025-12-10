@@ -9,16 +9,11 @@ venv/
 # IDE
 .vscode/
 .idea/
-*.swp
-*~
 
 # Database
 *.db
 *.sqlite3
 
-# Logs
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
+# Uploads
+uploads/
+static/
