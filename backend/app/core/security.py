@@ -10,6 +10,9 @@ from pydantic import BaseModel, EmailStr
 
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=config.API_V1_PREFIX + "/auth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(
+    tokenUrl=config.API_V1_PREFIX + "/auth/token", auto_error=False
+)
 
 
 class TokenData(BaseModel):

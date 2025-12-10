@@ -8,6 +8,7 @@ from app.core.security import (
     decode_access_token,
     hash_password,
     oauth2_scheme,
+    oauth2_scheme_optional,
     verify_password,
 )
 from app.db.models import User
@@ -102,8 +103,7 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
 ) -> User:
     token_data = decode_access_token(token)
-    email = token_data.email
-    user = db.exec(select(User).where(User.email == email)).first()
+    user = db.exec(select(User).where(User.email == token_data.email)).first()
 
     if not user:
         raise InvalidCredentialsError()
@@ -112,6 +112,35 @@ def get_current_user(
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_optional_current_user(
+    db: DBSession, token: str | None = Depends(oauth2_scheme_optional)
+) -> User | None:
+    """Get current user if authenticated, else None. Never raises errors."""
+    if not token:
+        return None
+
+    try:
+        token_data = decode_access_token(token)
+        user = db.exec(select(User).where(User.email == token_data.email)).first()
+        return user
+    except Exception:
+        # Invalid or expired token - return None instead of raising
+        return None
+
+
+OptionalCurrentUser = Annotated[User | None, Depends(get_optional_current_user)]
+
+
+def get_current_agency(current_user: CurrentUser) -> User:
+    if not current_user.is_agency:
+        raise HTTPException(status_code=403, detail="Agency access required")
+
+    return current_user
+
+
+CurrentAgency = Annotated[User, Depends(get_current_agency)]
 
 
 def get_auth_service(db: DBSession) -> AuthService:
