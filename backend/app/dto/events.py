@@ -4,6 +4,21 @@ from pydantic import BaseModel
 from app.db.models import EventCategory
 
 
+class EventRequest(BaseModel):
+    title: str
+    description: str
+    category: EventCategory
+    city: str
+    venue: str
+    address: str
+    starts_at: datetime
+    ends_at: datetime
+    ticket_price: float
+    vip_ticket_price: float
+
+    # TODO: add total vip and total regular options
+
+
 class EventResponse(BaseModel):
     id: int
     title: str
@@ -23,16 +38,3 @@ class EventResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class EventRequest(BaseModel):
-    title: str
-    description: str
-    category: EventCategory
-    city: str
-    venue: str
-    address: str
-    starts_at: datetime
-    ends_at: datetime
-    ticket_price: float
-    vip_ticket_price: float

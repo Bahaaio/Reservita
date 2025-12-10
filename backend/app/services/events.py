@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from app.db.models import Event, FavoriteEvent, Review, User
+from app.db.models import Event, EventSeat, FavoriteEvent, Review, SeatType, User
 from app.db.session import DBSession
 from app.dto.events import EventRequest, EventResponse
 from fastapi import Depends, HTTPException, status
@@ -63,8 +63,26 @@ class EventService:
         event.creator = agency
 
         self.db.add(event)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(event)
+
+        assert event.id is not None
+
+        # TODO: change hardcoded 100 seats (10 vip + 90 regular)
+
+        vip_seats: list[EventSeat] = [
+            EventSeat(event_id=event.id, seat_number=i + 1, seat_type=SeatType.VIP)
+            for i in range(10)
+        ]
+
+        regular_seats: list[EventSeat] = [
+            EventSeat(event_id=event.id, seat_number=i + 1, seat_type=SeatType.REGULAR)
+            for i in range(10, 100)
+        ]
+
+        self.db.add_all(vip_seats)
+        self.db.add_all(regular_seats)
+        self.db.commit()
 
         return self._event_to_response(event)
 

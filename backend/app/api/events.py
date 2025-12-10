@@ -1,7 +1,9 @@
 from app.dto.events import EventResponse
 from app.dto.pagination import PaginationParams
+from app.dto.seats import SeatsResponse
 from app.services.auth import OptionalCurrentUser
 from app.services.events import EventServiceDep
+from app.services.seats import SeatServiceDep
 from fastapi import APIRouter
 from fastapi_pagination import Page
 
@@ -24,3 +26,8 @@ def get_event(
     current_user: OptionalCurrentUser = None,
 ) -> EventResponse:
     return events_service.get_event(event_id, current_user)
+
+
+@router.get("/{event_id}/seats")
+def get_event_seats(event_id: int, seats_service: SeatServiceDep) -> SeatsResponse:
+    return seats_service.get_event_seats(event_id)

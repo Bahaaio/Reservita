@@ -1,0 +1,49 @@
+from typing import Annotated
+
+from app.db.models import Event, EventSeat, SeatType, Ticket, TicketStatus
+from app.db.session import DBSession
+from app.dto.seats import SeatResponse, SeatsResponse
+from fastapi import Depends, HTTPException, status
+from sqlmodel import select
+
+
+class SeatService:
+    def __init__(self, db: DBSession):
+        self.db = db
+
+    def get_event_seats(self, event_id: int) -> SeatsResponse:
+        event = self.db.exec(select(Event).where(Event.id == event_id)).first()
+
+        if not event:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+        seats = self.db.exec(
+            select(EventSeat).where(EventSeat.event_id == event_id)
+        ).all()
+
+        booked_seat_numbers = self.db.exec(
+            select(Ticket.seat_number)
+            .where(Ticket.event_id == event_id)
+            .where(Ticket.status == TicketStatus.CONFIRMED)
+        ).all()
+
+        seat_responses = [
+            SeatResponse(
+                seat_number=seat.seat_number,
+                seat_type=seat.seat_type,
+                price=event.vip_ticket_price
+                if seat.seat_type == SeatType.VIP
+                else event.ticket_price,
+                is_available=seat.seat_number not in booked_seat_numbers,
+            )
+            for seat in seats
+        ]
+
+        return SeatsResponse(seats=seat_responses)
+
+
+def get_seat_service(db: DBSession):
+    return SeatService(db)
+
+
+SeatServiceDep = Annotated[SeatService, Depends(get_seat_service)]
