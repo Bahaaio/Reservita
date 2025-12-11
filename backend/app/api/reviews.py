@@ -60,13 +60,13 @@ def update_review(
 
 @router.delete(
     "/reviews/{review_id}",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_204_NO_CONTENT,
     description="Delete your own review",
 )
 def delete_review(
     review_id: int,
     current_user: CurrentUser,
     reviews_service: ReviewServiceDep,
-) -> DeleteResponse:
+):
     return reviews_service.delete_review(review_id, current_user)
 

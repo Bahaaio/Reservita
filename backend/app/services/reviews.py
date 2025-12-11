@@ -28,11 +28,13 @@ class ReviewService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Ticket not found",
             )
+        
         if ticket.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You can only review your own tickets",
             )
+        
         event = ticket.event
 
         if event.starts_at > datetime.now(timezone.utc):
@@ -40,6 +42,7 @@ class ReviewService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot review an event that has not started yet",
             )
+        
         existing_review = self.db.exec(
             select(Review).where(Review.ticket_id == ticket_id)
         ).first()
@@ -49,6 +52,7 @@ class ReviewService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Review for this ticket already exists",
             )
+        
         review = Review(
             ticket_id=ticket_id,
             user_id=user.id,
@@ -56,6 +60,7 @@ class ReviewService:
             rating=request.rating,
             comment=request.comment,
         )
+
         self.db.add(review)
         self.db.commit()
         self.db.refresh(review)
@@ -88,7 +93,7 @@ class ReviewService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Event not found",
             )
-
+        
         total = self.db.exec(
             select(func.count()).select_from(Review).where(Review.event_id == event_id)
         ).one()
@@ -102,7 +107,9 @@ class ReviewService:
             .offset(offset)
             .limit(params.size)
         ).all()
+        
         responses = [self._review_to_response(review) for review in reviews]
+        
         return create_page(responses, total, params)
 
     def update_review(
@@ -120,6 +127,7 @@ class ReviewService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Review not found",
             )
+        
         if review.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -139,7 +147,7 @@ class ReviewService:
             self,
             review_id: int,
             user: User,
-    ) -> DeleteResponse:
+    ):
         review = self.db.exec(
             select(Review).where(Review.id == review_id)
         ).first()
@@ -149,15 +157,15 @@ class ReviewService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Review not found",
             )
+        
         if review.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You can only delete your own reviews",
             )
+        
         self.db.delete(review)
         self.db.commit()
-
-        return DeleteResponse(message="Review deleted successfully")
 
     def _review_to_response(self, review: Review) -> ReviewResponse:
         return ReviewResponse(

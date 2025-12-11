@@ -19,5 +19,4 @@ class ReviewResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class DeleteResponse(BaseModel):
-    message: str
+
