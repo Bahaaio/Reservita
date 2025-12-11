@@ -2,13 +2,13 @@ from app.dto.events import EventRequest, EventResponse
 from app.dto.pagination import PaginationParams
 from app.services.auth import CurrentAgency
 from app.services.events import EventServiceDep
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from fastapi_pagination import Page
 
 router = APIRouter(prefix="/my-events")
 
 
-@router.get("")
+@router.get("", description="List events for the current agency with pagination")
 def list_my_events(
     params: PaginationParams,
     current_agency: CurrentAgency,
@@ -17,7 +17,11 @@ def list_my_events(
     return events_service.list_agency_events(params, current_agency)
 
 
-@router.post("")
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    description="Create a new event for the current agency",
+)
 def create_event(
     request: EventRequest,
     current_agency: CurrentAgency,
@@ -26,7 +30,9 @@ def create_event(
     return events_service.create_event(current_agency, request)
 
 
-@router.put("/{event_id}")
+@router.put(
+    "/{event_id}", description="Update an existing event for the current agency"
+)
 def update_event(
     event_id: int,
     request: EventRequest,

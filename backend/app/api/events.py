@@ -10,7 +10,7 @@ from fastapi_pagination import Page
 router = APIRouter(prefix="/events")
 
 
-@router.get("")
+@router.get("", description="List all events with pagination")
 def list_all_events(
     params: PaginationParams,
     events_service: EventServiceDep,
@@ -19,7 +19,7 @@ def list_all_events(
     return events_service.list_all_events(params, current_user)
 
 
-@router.get("/{event_id}")
+@router.get("/{event_id}", description="Get details of a specific event by its ID")
 def get_event(
     event_id: int,
     events_service: EventServiceDep,
@@ -28,6 +28,9 @@ def get_event(
     return events_service.get_event(event_id, current_user)
 
 
-@router.get("/{event_id}/seats")
+@router.get(
+    "/{event_id}/seats",
+    description="Get all seats for an event with availability and pricing information",
+)
 def get_event_seats(event_id: int, seats_service: SeatServiceDep) -> SeatsResponse:
     return seats_service.get_event_seats(event_id)

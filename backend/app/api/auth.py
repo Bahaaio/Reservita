@@ -15,7 +15,11 @@ from pydantic import EmailStr
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    description="Register a new user with email and password",
+)
 def register(
     request: RegisterRequest,
     auth_service: AuthServiceDep,
@@ -23,7 +27,10 @@ def register(
     return auth_service.register_user(request)
 
 
-@router.post("/token")
+@router.post(
+    "/token",
+    description="OAuth2-compatible token endpoint. Use email in the 'username' field",
+)
 def login(
     username: Annotated[EmailStr, Form()],
     password: Annotated[str, Form(min_length=8)],
@@ -33,14 +40,14 @@ def login(
     return auth_service.login_user(username, password)
 
 
-@router.get("/me")
+@router.get("/me", description="Get the profile of the current user")
 def get_profile(
     current_user: CurrentUser, auth_service: AuthServiceDep
 ) -> UserResponse:
     return auth_service.get_profile(current_user)
 
 
-@router.patch("/me")
+@router.patch("/me", description="Update the profile of the current user")
 def update_profile(
     request: UpdateUserRequest,
     current_user: CurrentUser,
@@ -49,18 +56,26 @@ def update_profile(
     return auth_service.update_profile(current_user, request)
 
 
-@router.get("/me/avatar")
+@router.get("/me/avatar", description="Get the avatar of the current user")
 def get_avatar(current_user: CurrentUser, auth_service: AuthServiceDep) -> FileResponse:
     return auth_service.get_avatar(current_user)
 
 
-@router.put("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/me/avatar",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Upload or update the avatar of the current user (JPEG only, max 5MB)",
+)
 def upload_avatar(
     file: UploadFile, current_user: CurrentUser, auth_service: AuthServiceDep
 ):
     return auth_service.upload_avatar(current_user, file)
 
 
-@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/me/avatar",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete the avatar of the current user",
+)
 def delete_avatar(current_user: CurrentUser, auth_service: AuthServiceDep):
     return auth_service.delete_avatar(current_user)
