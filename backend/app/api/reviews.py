@@ -1,11 +1,22 @@
-from app.dto.reviews import ReviewCreateRequest, ReviewResponse, DeleteResponse
 from app.dto.pagination import PaginationParams
+from app.dto.reviews import ReviewCreateRequest, ReviewResponse
 from app.services.auth import CurrentUser
 from app.services.reviews import ReviewServiceDep
 from fastapi import APIRouter, status
 from fastapi_pagination import Page
 
 router = APIRouter()
+
+
+@router.get(
+    "/reviews/{review_id}",
+    description="Get details of a specific review by its ID",
+)
+def get_review(
+    review_id: int,
+    reviews_service: ReviewServiceDep,
+) -> ReviewResponse:
+    return reviews_service.get_review(review_id)
 
 
 @router.post(
@@ -20,17 +31,6 @@ def create_review(
     reviews_service: ReviewServiceDep,
 ) -> ReviewResponse:
     return reviews_service.create_review(current_user, ticket_id, request)
-
-
-@router.get(
-    "/reviews/{review_id}",
-    description="Get details of a specific review by its ID",
-)
-def get_review(
-    review_id: int,
-    reviews_service: ReviewServiceDep,
-) -> ReviewResponse:
-    return reviews_service.get_review(review_id)
 
 
 @router.get(
@@ -69,4 +69,3 @@ def delete_review(
     reviews_service: ReviewServiceDep,
 ):
     return reviews_service.delete_review(review_id, current_user)
-
