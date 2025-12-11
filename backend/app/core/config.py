@@ -1,8 +1,10 @@
+import secrets
+
 DATABASE_URL = "sqlite:///app.db"
 
-API_V1_PREFIX = "/api/v1"
+API_V1_STR = "/api/v1"
 
-JWT_SECRET_KEY = "c3b7082d171013954f4d5e566c8972bff5fb46a8bdb4ebd090933168c9274837"
+JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
 JWT_ACCESS_TOKEN_EXPIRE_SECONDS = 60 * 60  # 1 hour
 

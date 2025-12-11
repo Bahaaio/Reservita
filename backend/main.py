@@ -12,7 +12,7 @@ add_pagination(app)
 
 routers = [auth_router, events_router, my_events_router]
 for router in routers:
-    app.include_router(router, prefix=config.API_V1_PREFIX)
+    app.include_router(router, prefix=config.API_V1_STR)
 
 app.include_router(health_router)
 
