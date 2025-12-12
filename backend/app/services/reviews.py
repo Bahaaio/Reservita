@@ -23,23 +23,19 @@ class ReviewService:
         ticket = self.db.exec(select(Ticket).where(Ticket.id == ticket_id)).first()
 
         if not ticket:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Ticket not found",
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found")
 
         if ticket.user_id != user.id:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only review your own tickets",
+                status.HTTP_403_FORBIDDEN, "You can only review your own tickets"
             )
 
         event = ticket.event
 
         if event.starts_at > datetime.now(timezone.utc):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot review an event that has not started yet",
+                status.HTTP_400_BAD_REQUEST,
+                "Cannot review an event that has not started yet",
             )
 
         existing_review = self.db.exec(
@@ -48,8 +44,7 @@ class ReviewService:
 
         if existing_review:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Review for this ticket already exists",
+                status.HTTP_400_BAD_REQUEST, "Review for this ticket already exists"
             )
 
         assert user.id is not None
@@ -73,10 +68,7 @@ class ReviewService:
         review = self.db.exec(select(Review).where(Review.id == review_id)).first()
 
         if not review:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Review not found",
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Review not found")
 
         return self._review_to_response(review)
 
@@ -88,10 +80,7 @@ class ReviewService:
         event = self.db.exec(select(Event).where(Event.id == event_id)).first()
 
         if not event:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Event not found",
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
         total = self.db.exec(
             select(func.count()).select_from(Review).where(Review.event_id == event_id)
@@ -120,15 +109,11 @@ class ReviewService:
         review = self.db.exec(select(Review).where(Review.id == review_id)).first()
 
         if not review:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Review not found",
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Review not found")
 
         if review.user_id != user.id:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only update your own reviews",
+                status.HTTP_403_FORBIDDEN, "You can only update your own reviews"
             )
 
         if request.rating:
@@ -151,15 +136,11 @@ class ReviewService:
         review = self.db.exec(select(Review).where(Review.id == review_id)).first()
 
         if not review:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Review not found",
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Review not found")
 
         if review.user_id != user.id:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only delete your own reviews",
+                status.HTTP_403_FORBIDDEN, "You can only delete your own reviews"
             )
 
         self.db.delete(review)

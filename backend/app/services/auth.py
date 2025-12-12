@@ -27,7 +27,7 @@ from app.util.files import (
     save_file,
     validate_image_file,
 )
-from fastapi import Depends, HTTPException, UploadFile
+from fastapi import Depends, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlmodel import select
 
@@ -135,7 +135,7 @@ OptionalCurrentUser = Annotated[User | None, Depends(get_optional_current_user)]
 
 def get_current_agency(current_user: CurrentUser) -> User:
     if not current_user.is_agency:
-        raise HTTPException(status_code=403, detail="Agency access required")
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Agency access required")
 
     return current_user
 

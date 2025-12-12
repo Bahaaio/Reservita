@@ -38,7 +38,7 @@ class EventService:
         db_event = self.db.get(Event, event_id)
 
         if not db_event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         return self._event_to_response(db_event, current_user)
 
@@ -110,10 +110,10 @@ class EventService:
         event = self.db.exec(select(Event).where(Event.id == event_id)).first()
 
         if not event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         if event.creator_id != agency.id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+            raise HTTPException(status.HTTP_403_FORBIDDEN)
 
         event.sqlmodel_update(request.model_dump(exclude_unset=True))
 
@@ -127,9 +127,7 @@ class EventService:
         banner = self.db.get(EventBanner, banner_id)
 
         if not banner:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
         banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_id}.jpg")
         return get_file_response(banner_path)
@@ -140,19 +138,13 @@ class EventService:
         event = self.db.get(Event, event_id)
 
         if not event:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
         if event.creator_id != agency.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
-            )
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Not authorized")
 
         if len(event.banners) == settings.MAX_BANNERS_PER_EVENT:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Banner limit reached"
-            )
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Banner limit reached")
 
         banner = EventBanner(event_id=event_id)
 
@@ -168,27 +160,19 @@ class EventService:
         event = self.db.get(Event, event_id)
 
         if not event:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
         if event.creator_id != agency.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
-            )
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Not authorized")
 
         banner = self.db.get(EventBanner, banner_id)
 
         if not banner:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
         if banner.event_id != event_id:
             # return 404 to avoid info leak
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
-            )
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
         banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_id}.jpg")
         delete_file(banner_path)

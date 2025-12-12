@@ -15,7 +15,7 @@ class SeatService:
         event = self.db.exec(select(Event).where(Event.id == event_id)).first()
 
         if not event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         seats = self.db.exec(
             select(EventSeat).where(EventSeat.event_id == event_id)
