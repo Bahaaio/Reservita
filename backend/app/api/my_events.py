@@ -1,8 +1,10 @@
-from app.dto.events import EventRequest, EventResponse
+from uuid import UUID
+
+from app.dto.events import BannerResponse, EventRequest, EventResponse
 from app.dto.pagination import PaginationParams
 from app.services.auth import CurrentAgency
 from app.services.events import EventServiceDep
-from fastapi import APIRouter, status
+from fastapi import APIRouter, UploadFile, status
 from fastapi_pagination import Page
 
 router = APIRouter(prefix="/my-events")
@@ -40,3 +42,31 @@ def update_event(
     events_service: EventServiceDep,
 ) -> EventResponse:
     return events_service.update_event(event_id, request, current_agency)
+
+
+@router.post(
+    "/{event_id}/banners",
+    status_code=status.HTTP_201_CREATED,
+    description="Upload a banner for an existing event",
+)
+def upload_banner(
+    event_id: int,
+    file: UploadFile,
+    current_agency: CurrentAgency,
+    events_service: EventServiceDep,
+) -> BannerResponse:
+    return events_service.upload_banner(event_id, file, current_agency)
+
+
+@router.delete(
+    "/{event_id}/banners/{banner_uuid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a banner from an existing event",
+)
+def delete_banner(
+    event_id: int,
+    banner_uuid: UUID,
+    current_agency: CurrentAgency,
+    events_service: EventServiceDep,
+):
+    events_service.delete_banner(event_id, banner_uuid, current_agency)

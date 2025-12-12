@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
+from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKeyConstraint, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
@@ -41,9 +42,8 @@ class User(SQLModel, table=True):
 
 
 class EventBanner(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    uuid: UUID = Field(default_factory=uuid4, primary_key=True)
     event_id: int = Field(foreign_key="event.id")
-    uuid: str = Field(nullable=False)
 
     # Relationships
     event: "Event" = Relationship(back_populates="banners")

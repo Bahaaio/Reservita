@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.dto.events import EventResponse
 from app.dto.pagination import PaginationParams
 from app.dto.seats import SeatsResponse
@@ -5,6 +7,7 @@ from app.services.auth import OptionalCurrentUser
 from app.services.events import EventServiceDep
 from app.services.seats import SeatServiceDep
 from fastapi import APIRouter
+from fastapi.responses import FileResponse
 from fastapi_pagination import Page
 
 router = APIRouter(prefix="/events")
@@ -34,3 +37,14 @@ def get_event(
 )
 def get_event_seats(event_id: int, seats_service: SeatServiceDep) -> SeatsResponse:
     return seats_service.get_event_seats(event_id)
+
+
+@router.get(
+    "/banners/{banner_uuid}",
+    description="Get the banner file of an existing event by its UUID",
+)
+def get_banner(
+    banner_uuid: UUID,
+    events_service: EventServiceDep,
+) -> FileResponse:
+    return events_service.get_banner(banner_uuid)

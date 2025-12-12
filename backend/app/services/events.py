@@ -1,9 +1,27 @@
+import os
 from typing import Annotated
+from uuid import UUID
 
-from app.db.models import Event, EventSeat, FavoriteEvent, Review, SeatType, User
+from app.core import config
+from app.db.models import (
+    Event,
+    EventBanner,
+    EventSeat,
+    FavoriteEvent,
+    Review,
+    SeatType,
+    User,
+)
 from app.db.session import DBSession
-from app.dto.events import EventRequest, EventResponse
-from fastapi import Depends, HTTPException, status
+from app.dto.events import BannerResponse, EventRequest, EventResponse
+from app.util.files import (
+    delete_file,
+    get_file_response,
+    save_file,
+    validate_image_file,
+)
+from fastapi import Depends, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from fastapi_pagination import Page, Params, create_page
 from sqlmodel import func, select
 
@@ -104,6 +122,79 @@ class EventService:
         self.db.refresh(event)
 
         return self._event_to_response(event)
+
+    def get_banner(self, banner_uuid: UUID) -> FileResponse:
+        banner = self.db.get(EventBanner, banner_uuid)
+
+        if not banner:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
+            )
+
+        banner_path = os.path.join(config.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
+        return get_file_response(banner_path)
+
+    def upload_banner(
+        self, event_id: int, file: UploadFile, agency: User
+    ) -> BannerResponse:
+        event = self.db.get(Event, event_id)
+
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+            )
+
+        if event.creator_id != agency.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
+            )
+
+        if len(event.banners) == config.MAX_BANNERS_PER_EVENT:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Banner limit reached"
+            )
+
+        banner = EventBanner(event_id=event_id)
+
+        validate_image_file(file, config.MAX_BANNER_SIZE_MB)
+        save_file(file, config.BANNER_UPLOAD_DIR, f"{banner.uuid}.jpg")
+
+        self.db.add(banner)
+        self.db.commit()
+
+        return BannerResponse(uuid=banner.uuid)
+
+    def delete_banner(self, event_id: int, banner_uuid: UUID, agency: User):
+        event = self.db.get(Event, event_id)
+
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+            )
+
+        if event.creator_id != agency.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
+            )
+
+        banner = self.db.get(EventBanner, banner_uuid)
+
+        if not banner:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
+            )
+
+        if banner.event_id != event_id:
+            # return 404 to avoid info leak
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
+            )
+
+        banner_path = os.path.join(config.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
+        delete_file(banner_path)
+
+        self.db.delete(banner)
+        self.db.commit()
 
     def _event_to_response(
         self,
