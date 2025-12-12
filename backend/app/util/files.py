@@ -2,10 +2,9 @@ import os
 from pathlib import Path
 from uuid import UUID
 
+from app.core.config import settings
 from fastapi import HTTPException, UploadFile
 from fastapi.responses import FileResponse
-
-from app.core.config import settings
 
 
 def get_avatar_path(user_id: int) -> str:
@@ -35,24 +34,22 @@ def validate_image_file(file: UploadFile, max_size_mb: int = 5):
         raise HTTPException(400, f"File size exceeds maximum of {max_size_mb}MB")
 
 
-def save_file(file: UploadFile, directory: str, filename: str):
+def save_file(file: UploadFile, file_path: str):
     # Create directory if it doesn't exist
-    dir_path = Path(directory)
+    dir_path = Path(file_path).parent
     dir_path.mkdir(parents=True, exist_ok=True)
 
     # Save file (overwrites if exists)
-    file_path = dir_path / filename
-
     try:
-        with file_path.open("wb") as f:
+        with Path(file_path).open("wb") as f:
             f.write(file.file.read())
     except Exception as e:
         raise HTTPException(500, f"Failed to save file: {str(e)}")
 
 
-def get_file_response(file_path: str, media_type: str = "image/jpeg") -> FileResponse:
+def get_image_response(file_path: str) -> FileResponse:
     check_file_exists(file_path)
-    return FileResponse(path=file_path, media_type=media_type)
+    return FileResponse(path=file_path, media_type="image/jpeg")
 
 
 def delete_file(file_path: str):

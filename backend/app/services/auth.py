@@ -1,4 +1,3 @@
-import os
 from typing import Annotated
 
 from app.core.config import settings
@@ -23,7 +22,8 @@ from app.dto.auth import (
 from app.exceptions.auth import EmailAlreadyTakenError, InvalidCredentialsError
 from app.util.files import (
     delete_file,
-    get_file_response,
+    get_avatar_path,
+    get_image_response,
     save_file,
     validate_image_file,
 )
@@ -86,16 +86,17 @@ class AuthService:
         return UserResponse.model_validate(user)
 
     def get_avatar(self, user: User) -> FileResponse:
-        avatar_path = os.path.join(settings.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
-        return get_file_response(avatar_path, media_type="image/jpeg")
+        assert user.id is not None
+        return get_image_response(get_avatar_path(user.id))
 
     def upload_avatar(self, user: User, file: UploadFile):
         validate_image_file(file, max_size_mb=settings.MAX_AVATAR_SIZE_MB)
-        save_file(file, settings.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+        assert user.id is not None
+        save_file(file, get_avatar_path(user.id))
 
     def delete_avatar(self, user: User):
-        avatar_path = os.path.join(settings.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
-        delete_file(avatar_path)
+        assert user.id is not None
+        delete_file(get_avatar_path(user.id))
 
 
 def get_current_user(

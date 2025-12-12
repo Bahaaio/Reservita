@@ -1,4 +1,3 @@
-import os
 from typing import Annotated
 from uuid import UUID
 
@@ -16,7 +15,8 @@ from app.db.session import DBSession
 from app.dto.events import BannerResponse, EventRequest, EventResponse
 from app.util.files import (
     delete_file,
-    get_file_response,
+    get_banner_path,
+    get_image_response,
     save_file,
     validate_image_file,
 )
@@ -129,8 +129,7 @@ class EventService:
         if not banner:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
-        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_id}.jpg")
-        return get_file_response(banner_path)
+        return get_image_response(get_banner_path(banner_id))
 
     def upload_banner(
         self, event_id: int, file: UploadFile, agency: User
@@ -149,7 +148,7 @@ class EventService:
         banner = EventBanner(event_id=event_id)
 
         validate_image_file(file, settings.MAX_BANNER_SIZE_MB)
-        save_file(file, settings.BANNER_UPLOAD_DIR, f"{banner.id}.jpg")
+        save_file(file, get_banner_path(banner.id))
 
         self.db.add(banner)
         self.db.commit()
@@ -174,8 +173,7 @@ class EventService:
             # return 404 to avoid info leak
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
-        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_id}.jpg")
-        delete_file(banner_path)
+        delete_file(get_banner_path(banner_id))
 
         self.db.delete(banner)
         self.db.commit()
