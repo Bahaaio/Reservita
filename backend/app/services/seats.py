@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from app.db.models import Event, EventSeat, SeatType, Ticket, TicketStatus
+from app.db.models import Event, EventSeat, Ticket, TicketStatus
 from app.db.session import DBSession
-from app.dto.seats import SeatResponse, SeatsResponse
+from app.dto.seats import SeatPricing, SeatResponse, SeatsResponse, SeatsSummary
 from fastapi import Depends, HTTPException, status
 from sqlmodel import select
 
@@ -21,25 +21,34 @@ class SeatService:
             select(EventSeat).where(EventSeat.event_id == event_id)
         ).all()
 
-        booked_seat_numbers = self.db.exec(
-            select(Ticket.seat_number)
-            .where(Ticket.event_id == event_id)
-            .where(Ticket.status == TicketStatus.CONFIRMED)
-        ).all()
+        booked_seat_numbers = set(
+            self.db.exec(
+                select(Ticket.seat_number)
+                .where(Ticket.event_id == event_id)
+                .where(Ticket.status == TicketStatus.CONFIRMED)
+            ).all()
+        )
 
         seat_responses = [
             SeatResponse(
                 seat_number=seat.seat_number,
                 seat_type=seat.seat_type,
-                price=event.vip_ticket_price
-                if seat.seat_type == SeatType.VIP
-                else event.ticket_price,
                 is_available=seat.seat_number not in booked_seat_numbers,
             )
             for seat in seats
         ]
 
-        return SeatsResponse(seats=seat_responses)
+        return SeatsResponse(
+            seats=seat_responses,
+            pricing=SeatPricing(
+                vip=event.vip_ticket_price,
+                regular=event.ticket_price,
+            ),
+            summary=SeatsSummary(
+                total_seats=len(seats),
+                available_seats=len(seats) - len(booked_seat_numbers),
+            ),
+        )
 
 
 def get_seat_service(db: DBSession):

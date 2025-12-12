@@ -5,13 +5,23 @@ from pydantic import BaseModel
 class SeatResponse(BaseModel):
     seat_number: int
     seat_type: SeatType
-
-    price: float
     is_available: bool
 
     class Config:
         from_attributes = True
 
 
+class SeatPricing(BaseModel):
+    vip: float
+    regular: float
+
+
+class SeatsSummary(BaseModel):
+    total_seats: int
+    available_seats: int
+
+
 class SeatsResponse(BaseModel):
     seats: list[SeatResponse]
+    pricing: SeatPricing
+    summary: SeatsSummary
