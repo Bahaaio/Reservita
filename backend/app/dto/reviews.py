@@ -12,6 +12,15 @@ class ReviewCreateRequest(BaseModel):
     )
 
 
+class ReviewUpdateRequest(BaseModel):
+    rating: float | None = Field(default=None, ge=1, le=5)
+    comment: str | None = Field(
+        default=None,
+        min_length=10,
+        max_length=1000,
+    )
+
+
 class ReviewResponse(BaseModel):
     id: int
     user_full_name: str

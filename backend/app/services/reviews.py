@@ -4,7 +4,7 @@ from typing import Annotated
 from app.db.models import Event, Review, Ticket, User
 from app.db.session import DBSession
 from app.dto.pagination import PaginationParams
-from app.dto.reviews import ReviewCreateRequest, ReviewResponse
+from app.dto.reviews import ReviewCreateRequest, ReviewResponse, ReviewUpdateRequest
 from fastapi import Depends, HTTPException, status
 from fastapi_pagination import Page, create_page
 from sqlmodel import desc, func, select
@@ -115,7 +115,7 @@ class ReviewService:
         self,
         review_id: int,
         user: User,
-        request: ReviewCreateRequest,
+        request: ReviewUpdateRequest,
     ) -> ReviewResponse:
         review = self.db.exec(select(Review).where(Review.id == review_id)).first()
 
@@ -131,8 +131,11 @@ class ReviewService:
                 detail="You can only update your own reviews",
             )
 
-        review.rating = request.rating
-        review.comment = request.comment
+        if request.rating:
+            review.rating = request.rating
+
+        if request.comment:
+            review.comment = request.comment
 
         self.db.add(review)
         self.db.commit()
@@ -179,4 +182,3 @@ def get_review_service(db: DBSession) -> ReviewService:
 
 
 ReviewServiceDep = Annotated[ReviewService, Depends(get_review_service)]
-

@@ -1,5 +1,5 @@
 from app.dto.pagination import PaginationParams
-from app.dto.reviews import ReviewCreateRequest, ReviewResponse
+from app.dto.reviews import ReviewCreateRequest, ReviewResponse, ReviewUpdateRequest
 from app.services.auth import CurrentUser
 from app.services.reviews import ReviewServiceDep
 from fastapi import APIRouter, status
@@ -45,13 +45,13 @@ def list_event_reviews(
     return reviews_service.list_event_reviews(event_id, params)
 
 
-@router.put(
+@router.patch(
     "/reviews/{review_id}",
     description="Update your own review",
 )
 def update_review(
     review_id: int,
-    request: ReviewCreateRequest,
+    request: ReviewUpdateRequest,
     current_user: CurrentUser,
     reviews_service: ReviewServiceDep,
 ) -> ReviewResponse:
