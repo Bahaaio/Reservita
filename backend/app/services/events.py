@@ -123,15 +123,15 @@ class EventService:
 
         return self._event_to_response(event)
 
-    def get_banner(self, banner_uuid: UUID) -> FileResponse:
-        banner = self.db.get(EventBanner, banner_uuid)
+    def get_banner(self, banner_id: UUID) -> FileResponse:
+        banner = self.db.get(EventBanner, banner_id)
 
         if not banner:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
             )
 
-        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
+        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_id}.jpg")
         return get_file_response(banner_path)
 
     def upload_banner(
@@ -157,14 +157,14 @@ class EventService:
         banner = EventBanner(event_id=event_id)
 
         validate_image_file(file, settings.MAX_BANNER_SIZE_MB)
-        save_file(file, settings.BANNER_UPLOAD_DIR, f"{banner.uuid}.jpg")
+        save_file(file, settings.BANNER_UPLOAD_DIR, f"{banner.id}.jpg")
 
         self.db.add(banner)
         self.db.commit()
 
-        return BannerResponse(uuid=banner.uuid)
+        return BannerResponse(id=banner.id)
 
-    def delete_banner(self, event_id: int, banner_uuid: UUID, agency: User):
+    def delete_banner(self, event_id: int, banner_id: UUID, agency: User):
         event = self.db.get(Event, event_id)
 
         if not event:
@@ -177,7 +177,7 @@ class EventService:
                 status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
             )
 
-        banner = self.db.get(EventBanner, banner_uuid)
+        banner = self.db.get(EventBanner, banner_id)
 
         if not banner:
             raise HTTPException(
@@ -190,7 +190,7 @@ class EventService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
             )
 
-        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
+        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_id}.jpg")
         delete_file(banner_path)
 
         self.db.delete(banner)
@@ -213,7 +213,7 @@ class EventService:
             is_favorited = fav_result is not None
 
         return EventResponse(
-            banner_uuids=[banner.uuid for banner in event.banners],
+            banner_ids=[banner.id for banner in event.banners],
             average_rating=self._calculate_average_rating(event),
             is_favorited=is_favorited,
             **event.model_dump(),

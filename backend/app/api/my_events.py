@@ -59,14 +59,14 @@ def upload_banner(
 
 
 @router.delete(
-    "/{event_id}/banners/{banner_uuid}",
+    "/{event_id}/banners/{banner_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     description="Delete a banner from an existing event",
 )
 def delete_banner(
     event_id: int,
-    banner_uuid: UUID,
+    banner_id: UUID,
     current_agency: CurrentAgency,
     events_service: EventServiceDep,
 ):
-    events_service.delete_banner(event_id, banner_uuid, current_agency)
+    events_service.delete_banner(event_id, banner_id, current_agency)

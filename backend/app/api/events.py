@@ -40,11 +40,11 @@ def get_event_seats(event_id: int, seats_service: SeatServiceDep) -> SeatsRespon
 
 
 @router.get(
-    "/banners/{banner_uuid}",
-    description="Get the banner file of an existing event by its UUID",
+    "/banners/{banner_id}",
+    description="Get the banner file of an existing event by its ID",
 )
 def get_banner(
-    banner_uuid: UUID,
+    banner_id: UUID,
     events_service: EventServiceDep,
 ) -> FileResponse:
-    return events_service.get_banner(banner_uuid)
+    return events_service.get_banner(banner_id)

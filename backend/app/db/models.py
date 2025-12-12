@@ -42,7 +42,7 @@ class User(SQLModel, table=True):
 
 
 class EventBanner(SQLModel, table=True):
-    uuid: UUID = Field(default_factory=uuid4, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     event_id: int = Field(foreign_key="event.id")
 
     # Relationships

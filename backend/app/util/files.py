@@ -13,9 +13,9 @@ def get_avatar_path(user_id: int) -> str:
     return f"{settings.AVATAR_UPLOAD_DIR}/{user_id}.jpg"
 
 
-def get_banner_path(banner_uuid: UUID) -> str:
+def get_banner_path(banner_id: UUID) -> str:
     """Get the file path for an event banner"""
-    return f"{settings.BANNER_UPLOAD_DIR}/{banner_uuid}.jpg"
+    return f"{settings.BANNER_UPLOAD_DIR}/{banner_id}.jpg"
 
 
 def validate_image_file(file: UploadFile, max_size_mb: int = 5):

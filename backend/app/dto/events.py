@@ -32,7 +32,7 @@ class EventResponse(BaseModel):
     ends_at: datetime
     ticket_price: float
     vip_ticket_price: float
-    banner_uuids: list[UUID]
+    banner_ids: list[UUID]
 
     average_rating: float
     is_favorited: bool  # if authenticated user has favorited this event
@@ -42,4 +42,4 @@ class EventResponse(BaseModel):
 
 
 class BannerResponse(BaseModel):
-    uuid: UUID
+    id: UUID
