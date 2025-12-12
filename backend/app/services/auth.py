@@ -1,7 +1,7 @@
 import os
 from typing import Annotated
 
-from app.core import config
+from app.core.config import settings
 from app.core.security import (
     TokenData,
     create_access_token,
@@ -86,15 +86,15 @@ class AuthService:
         return UserResponse.model_validate(user)
 
     def get_avatar(self, user: User) -> FileResponse:
-        avatar_path = os.path.join(config.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+        avatar_path = os.path.join(settings.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
         return get_file_response(avatar_path, media_type="image/jpeg")
 
     def upload_avatar(self, user: User, file: UploadFile):
-        validate_image_file(file, max_size_mb=config.MAX_AVATAR_SIZE_MB)
-        save_file(file, config.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+        validate_image_file(file, max_size_mb=settings.MAX_AVATAR_SIZE_MB)
+        save_file(file, settings.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
 
     def delete_avatar(self, user: User):
-        avatar_path = os.path.join(config.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
+        avatar_path = os.path.join(settings.AVATAR_UPLOAD_DIR, f"{user.id}.jpg")
         delete_file(avatar_path)
 
 

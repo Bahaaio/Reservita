@@ -34,6 +34,23 @@ Interactive API documentation with Swagger UI:
 - **Swagger UI:** <http://localhost:8000/docs>
 - **ReDoc:** <http://localhost:8000/redoc>
 
+## Configuration
+
+Settings are managed using Pydantic Settings in [config.py](./app/core/config.py)
+
+| Setting                       | Default            | Description           |
+| ----------------------------- | ------------------ | --------------------- |
+| `DATABASE_URL`                | `sqlite:///app.db` | Database connection   |
+| `API_V1_STR`                  | `/api/v1`          | API version prefix    |
+| `JWT_SECRET_KEY`              | Auto-generated     | JWT signing key       |
+| `JWT_ALGORITHM`               | `HS256`            | JWT algorithm         |
+| `ACCESS_TOKEN_EXPIRE_SECONDS` | `3600` (1 hour)    | Token expiration      |
+| `MAX_AVATAR_SIZE_MB`          | `5`                | Max avatar size       |
+| `MAX_BANNER_SIZE_MB`          | `10`               | Max banner size       |
+| `MAX_BANNERS_PER_EVENT`       | `5`                | Max banners per event |
+
+> All settings can be overridden using environment variables.
+
 ## Database Schema
 
 ![schema](/docs/backend/schema.svg)
@@ -54,18 +71,6 @@ backend/
 ├── main.py           # Application entry point
 └── requirements.txt  # Dependencies
 ```
-
-## Configuration
-
-Key settings in `app/core/config.py`:
-
-| Setting                           | Default            | Description               |
-| --------------------------------- | ------------------ | ------------------------- |
-| `DATABASE_URL`                    | `sqlite:///app.db` | Database connection       |
-| `API_V1_STR`                      | `/api/v1`          | API version prefix        |
-| `JWT_ACCESS_TOKEN_EXPIRE_SECONDS` | `3600`             | Token expiration (1 hour) |
-| `MAX_AVATAR_SIZE_MB`              | `5`                | Max avatar size           |
-| `MAX_BANNER_SIZE_MB`              | `10`               | Max banner size           |
 
 ## Development
 

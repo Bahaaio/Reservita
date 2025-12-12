@@ -2,7 +2,7 @@ import os
 from typing import Annotated
 from uuid import UUID
 
-from app.core import config
+from app.core.config import settings
 from app.db.models import (
     Event,
     EventBanner,
@@ -131,7 +131,7 @@ class EventService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
             )
 
-        banner_path = os.path.join(config.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
+        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
         return get_file_response(banner_path)
 
     def upload_banner(
@@ -149,15 +149,15 @@ class EventService:
                 status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
             )
 
-        if len(event.banners) == config.MAX_BANNERS_PER_EVENT:
+        if len(event.banners) == settings.MAX_BANNERS_PER_EVENT:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Banner limit reached"
             )
 
         banner = EventBanner(event_id=event_id)
 
-        validate_image_file(file, config.MAX_BANNER_SIZE_MB)
-        save_file(file, config.BANNER_UPLOAD_DIR, f"{banner.uuid}.jpg")
+        validate_image_file(file, settings.MAX_BANNER_SIZE_MB)
+        save_file(file, settings.BANNER_UPLOAD_DIR, f"{banner.uuid}.jpg")
 
         self.db.add(banner)
         self.db.commit()
@@ -190,7 +190,7 @@ class EventService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Banner not found"
             )
 
-        banner_path = os.path.join(config.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
+        banner_path = os.path.join(settings.BANNER_UPLOAD_DIR, f"{banner_uuid}.jpg")
         delete_file(banner_path)
 
         self.db.delete(banner)

@@ -1,12 +1,26 @@
 import os
 from pathlib import Path
+from uuid import UUID
 
 from fastapi import HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
+from app.core.config import settings
+
+
+def get_avatar_path(user_id: int) -> str:
+    """Get the file path for a user's avatar"""
+    return f"{settings.AVATAR_UPLOAD_DIR}/{user_id}.jpg"
+
+
+def get_banner_path(banner_uuid: UUID) -> str:
+    """Get the file path for an event banner"""
+    return f"{settings.BANNER_UPLOAD_DIR}/{banner_uuid}.jpg"
+
 
 def validate_image_file(file: UploadFile, max_size_mb: int = 5):
     """Validate that uploaded file is an image and within size limit"""
+
     # Validate file type
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(400, "File must be an image")
