@@ -23,6 +23,7 @@ Jinja2==3.1.6
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
+pillow==12.0.0
 pwdlib==0.3.0
 pycparser==2.23
 pydantic==2.12.5
@@ -33,6 +34,7 @@ PyJWT==2.10.1
 python-dotenv==1.2.1
 python-multipart==0.0.20
 PyYAML==6.0.3
+qrcode==8.2
 rich==14.2.0
 rich-toolkit==0.17.0
 rignore==0.7.6
@@ -46,6 +48,6 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.0
 uvicorn==0.38.0
-uvloop==0.22.1
+uvloop==0.22.1 ; platform_system != "Windows"
 watchfiles==1.1.1
 websockets==15.0.1
