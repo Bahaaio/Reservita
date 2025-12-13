@@ -1,19 +1,10 @@
 from app.dto.tickets import TicketBookRequest, TicketResponse
 from app.services.auth import CurrentUser
 from app.services.tickets import TicketServiceDep
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from fastapi.responses import StreamingResponse
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
-
-
-@router.post("", description="Book a new ticket")
-def book_ticket(
-    request: TicketBookRequest,
-    current_user: CurrentUser,
-    ticket_service: TicketServiceDep,
-) -> TicketResponse:
-    return ticket_service.book_ticket(current_user, request)
 
 
 @router.get("", description="List all tickets belonging to the current user")
@@ -22,6 +13,15 @@ def list_my_tickets(
     ticket_service: TicketServiceDep,
 ) -> list[TicketResponse]:
     return ticket_service.list_my_tickets(current_user)
+
+
+@router.post("", status_code=status.HTTP_201_CREATED, description="Book a new ticket")
+def book_ticket(
+    request: TicketBookRequest,
+    current_user: CurrentUser,
+    ticket_service: TicketServiceDep,
+) -> TicketResponse:
+    return ticket_service.book_ticket(current_user, request)
 
 
 @router.get("/{ticket_id}", description="Get details of a specific ticket")

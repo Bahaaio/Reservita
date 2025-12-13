@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKeyConstraint, UniqueConstraint
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import ForeignKeyConstraint
+from sqlmodel import Field, Index, Relationship, SQLModel
 
 
 class SeatType(str, Enum):
@@ -107,8 +107,14 @@ class Ticket(SQLModel, table=True):
             ["eventseat.event_id", "eventseat.seat_number"],
             name="fk_ticket_event_seat",
         ),
-        # Unique constraint: one ticket per seat
-        UniqueConstraint("event_id", "seat_number", name="unique_event_seat_ticket"),
+        # Unique index to ensure a seat can only be confirmed once per event
+        Index(
+            "idx_unique_confirmed_seat",
+            "event_id",
+            "seat_number",
+            unique=True,
+            sqlite_where="status = 'confirmed'",
+        ),
     )
 
     # Relationships

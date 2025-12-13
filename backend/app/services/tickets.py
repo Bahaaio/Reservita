@@ -9,6 +9,7 @@ from app.db.session import DBSession
 from app.dto.tickets import TicketBookRequest, TicketResponse
 from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 
@@ -17,17 +18,20 @@ class TicketService:
         self.db = db
 
     def book_ticket(self, user: User, request: TicketBookRequest) -> TicketResponse:
-        # 1. Check Event
         event = self.db.get(Event, request.event_id)
         if not event:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
-        # 2. Check Seat existence
+        if event.starts_at <= datetime.now(timezone.utc):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Cannot book tickets for past or ongoing events",
+            )
+
         seat = self.db.get(EventSeat, (request.event_id, request.seat_number))
         if not seat:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Seat number does not exist")
 
-        # 3. Check Availability
         existing_ticket = self.db.exec(
             select(Ticket)
             .where(Ticket.event_id == request.event_id)
@@ -38,25 +42,27 @@ class TicketService:
         if existing_ticket:
             raise HTTPException(status.HTTP_409_CONFLICT, "This seat is already booked")
 
-        # 4. Generate Unique QR String
         generated_qr = f"TICKET-{request.event_id}-{request.seat_number}-{uuid.uuid4().hex[:6].upper()}"
 
         assert user.id is not None
 
-        # 5. Create Ticket
-        new_ticket = Ticket(
-            user_id=user.id,
-            event_id=request.event_id,
-            seat_number=request.seat_number,
-            qr_code=generated_qr,
-            status=TicketStatus.CONFIRMED,
-        )
+        try:
+            new_ticket = Ticket(
+                user_id=user.id,
+                event_id=request.event_id,
+                seat_number=request.seat_number,
+                qr_code=generated_qr,
+                status=TicketStatus.CONFIRMED,
+            )
 
-        self.db.add(new_ticket)
-        self.db.commit()
-        self.db.refresh(new_ticket)
+            self.db.add(new_ticket)
+            self.db.commit()
+            self.db.refresh(new_ticket)
 
-        return self._ticket_to_response(new_ticket, event, seat)
+            return self._ticket_to_response(new_ticket, event, seat)
+        except IntegrityError:
+            self.db.rollback()
+            raise HTTPException(status.HTTP_409_CONFLICT, "This seat is already booked")
 
     def list_my_tickets(self, user: User) -> list[TicketResponse]:
         tickets = self.db.exec(select(Ticket).where(Ticket.user_id == user.id)).all()
@@ -98,12 +104,12 @@ class TicketService:
                 status.HTTP_400_BAD_REQUEST, "Ticket is already cancelled"
             )
 
-        # 24-Hour Rule
         event = self.db.get(Event, ticket.event_id)
 
         if not event:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
+        # 24-Hour Rule
         time_until_event = event.starts_at - datetime.now(timezone.utc)
 
         if time_until_event < timedelta(hours=24):
@@ -133,6 +139,11 @@ class TicketService:
 
         if not ticket or ticket.user_id != user.id:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found")
+
+        if not ticket.qr_code:
+            raise HTTPException(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, "Ticket QR code is invalid"
+            )
 
         qr = qrcode.QRCode(box_size=10, border=4)
         qr.add_data(ticket.qr_code)
