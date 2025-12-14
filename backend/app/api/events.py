@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from fastapi_pagination import Page
 
-router = APIRouter(prefix="/events")
+router = APIRouter(prefix="/events", tags=["Events"])
 
 
 @router.get("", description="List all events with pagination")

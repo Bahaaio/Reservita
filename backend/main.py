@@ -9,7 +9,7 @@ from app.db.session import init_db
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
-app = FastAPI()
+app = FastAPI(title="Ticket Reservation API")
 add_pagination(app)
 
 routers = [auth_router, events_router, my_events_router, reviews_router, tickets_router]

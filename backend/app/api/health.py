@@ -2,9 +2,9 @@ from fastapi import APIRouter
 
 from app.dto.health import HealthResponse
 
-router = APIRouter()
+router = APIRouter(prefix="/health", tags=["Health"])
 
 
-@router.get("/health", description="Check the health status of the application")
+@router.get("", description="Check the health status of the application")
 def health_check() -> HealthResponse:
     return HealthResponse()

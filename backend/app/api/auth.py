@@ -12,7 +12,7 @@ from fastapi import APIRouter, Form, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import EmailStr
 
-router = APIRouter(prefix="/auth")
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post(

@@ -7,7 +7,7 @@ from app.services.events import EventServiceDep
 from fastapi import APIRouter, UploadFile, status
 from fastapi_pagination import Page
 
-router = APIRouter(prefix="/my-events")
+router = APIRouter(prefix="/my-events", tags=["Agency Events"])
 
 
 @router.get("", description="List events for the current agency with pagination")

@@ -5,7 +5,7 @@ from app.services.reviews import ReviewServiceDep
 from fastapi import APIRouter, status
 from fastapi_pagination import Page
 
-router = APIRouter()
+router = APIRouter(tags=["Reviews"])
 
 
 @router.get(
