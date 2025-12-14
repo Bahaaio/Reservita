@@ -40,7 +40,7 @@ class TicketService:
         ).first()
 
         if existing_ticket:
-            raise HTTPException(status.HTTP_409_CONFLICT, "This seat is already booked")
+            raise HTTPException(status.HTTP_409_CONFLICT, "Seat is already booked")
 
         generated_qr = f"TICKET-{request.event_id}-{request.seat_number}-{uuid.uuid4().hex[:6].upper()}"
 
@@ -109,6 +109,12 @@ class TicketService:
         if not event:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
+        if event.starts_at <= datetime.now(timezone.utc):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Cannot cancel tickets for past or ongoing events",
+            )
+
         # 24-Hour Rule
         time_until_event = event.starts_at - datetime.now(timezone.utc)
 
@@ -173,9 +179,11 @@ class TicketService:
         )
 
         assert ticket.id is not None
+        assert event.id is not None
 
         return TicketResponse(
             id=ticket.id,
+            event_id=event.id,
             status=ticket.status,
             purchased_at=ticket.purchased_at,
             seat_number=ticket.seat_number,

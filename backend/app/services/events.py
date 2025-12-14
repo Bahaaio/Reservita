@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated
 from uuid import UUID
 
@@ -77,6 +78,18 @@ class EventService:
         return create_page(events, total, params)
 
     def create_event(self, agency: User, request: EventRequest) -> EventResponse:
+        if request.starts_at <= datetime.now(timezone.utc):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Event start time must be in the future",
+            )
+
+        if request.starts_at >= request.ends_at:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Event start time must be before end time",
+            )
+
         event = Event(**request.model_dump())
         event.creator = agency
 

@@ -19,9 +19,9 @@ class TicketResponse(BaseModel):
     """
 
     id: int
+    event_id: int
     status: TicketStatus
     purchased_at: datetime
     seat_number: int
     seat_type: SeatType
     price_paid: float
-
