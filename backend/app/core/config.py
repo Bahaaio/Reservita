@@ -1,5 +1,3 @@
-import secrets
-
 from pydantic_settings import BaseSettings
 
 
@@ -11,7 +9,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///app.db"
 
     # JWT/Auth
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str = "d07bbefa967067a74274b4f615356a01eac34ce5efaced31ff1486a00be9bf00"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_SECONDS: int = 60 * 60  # 1 hour
 
