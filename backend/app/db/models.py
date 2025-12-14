@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
@@ -97,7 +97,7 @@ class Ticket(SQLModel, table=True):
     status: TicketStatus = Field(
         default=TicketStatus.CONFIRMED, nullable=False, index=True
     )
-    purchased_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    purchased_at: datetime = Field(default_factory=datetime.now)
     cancelled_at: datetime | None = Field(default=None)
 
     # Composite foreign key to EventSeat
@@ -133,7 +133,7 @@ class Review(SQLModel, table=True):
     event_id: int = Field(foreign_key="event.id")
     rating: float = Field(nullable=False, ge=1, le=5)
     comment: str | None = Field(default=None)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=datetime.now)
 
     # Relationships
     ticket: Ticket = Relationship(back_populates="review")

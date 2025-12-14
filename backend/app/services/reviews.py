@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Annotated
 
 from app.db.models import Event, Review, Ticket, User
@@ -32,7 +32,7 @@ class ReviewService:
 
         event = ticket.event
 
-        if event.starts_at > datetime.now(timezone.utc):
+        if event.starts_at > datetime.now():
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 "Cannot review an event that has not started yet",

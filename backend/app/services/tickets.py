@@ -1,6 +1,6 @@
 import io
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Annotated
 
 import qrcode
@@ -22,7 +22,7 @@ class TicketService:
         if not event:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
-        if event.starts_at <= datetime.now(timezone.utc):
+        if event.starts_at <= datetime.now():
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 "Cannot book tickets for past or ongoing events",
@@ -109,14 +109,14 @@ class TicketService:
         if not event:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
 
-        if event.starts_at <= datetime.now(timezone.utc):
+        if event.starts_at <= datetime.now():
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 "Cannot cancel tickets for past or ongoing events",
             )
 
         # 24-Hour Rule
-        time_until_event = event.starts_at - datetime.now(timezone.utc)
+        time_until_event = event.starts_at - datetime.now()
 
         if time_until_event < timedelta(hours=24):
             raise HTTPException(
@@ -124,7 +124,7 @@ class TicketService:
             )
 
         ticket.status = TicketStatus.CANCELLED
-        ticket.cancelled_at = datetime.now(timezone.utc)
+        ticket.cancelled_at = datetime.now()
 
         self.db.add(ticket)
         self.db.commit()

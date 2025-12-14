@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.db.models import EventCategory
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class EventRequest(BaseModel):
@@ -16,6 +16,12 @@ class EventRequest(BaseModel):
     ends_at: datetime
     ticket_price: float
     vip_ticket_price: float
+
+    @field_validator("starts_at", "ends_at", mode="after")
+    @classmethod
+    def strip_timezone(cls, v: datetime):
+        """Remove timezone info from incoming datetimes."""
+        return v.replace(tzinfo=None)
 
     # TODO: add total vip and total regular options
 
