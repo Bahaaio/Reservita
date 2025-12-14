@@ -4,12 +4,9 @@ from app.dto.auth import (
     RegisterRequest,
     RegisterResponse,
     Token,
-    UpdateUserRequest,
-    UserResponse,
 )
-from app.services.auth import AuthServiceDep, CurrentUser
-from fastapi import APIRouter, Form, UploadFile, status
-from fastapi.responses import FileResponse
+from app.services.auth import AuthServiceDep
+from fastapi import APIRouter, Form, status
 from pydantic import EmailStr
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -38,44 +35,3 @@ def login(
 ) -> Token:
     """**Note:** Use email address in the 'username' field."""
     return auth_service.login_user(username, password)
-
-
-@router.get("/me", description="Get the profile of the current user")
-def get_profile(
-    current_user: CurrentUser, auth_service: AuthServiceDep
-) -> UserResponse:
-    return auth_service.get_profile(current_user)
-
-
-@router.patch("/me", description="Update the profile of the current user")
-def update_profile(
-    request: UpdateUserRequest,
-    current_user: CurrentUser,
-    auth_service: AuthServiceDep,
-) -> UserResponse:
-    return auth_service.update_profile(current_user, request)
-
-
-@router.get("/me/avatar", description="Get the avatar of the current user")
-def get_avatar(current_user: CurrentUser, auth_service: AuthServiceDep) -> FileResponse:
-    return auth_service.get_avatar(current_user)
-
-
-@router.put(
-    "/me/avatar",
-    status_code=status.HTTP_204_NO_CONTENT,
-    description="Upload or update the avatar of the current user (JPEG only, max 5MB)",
-)
-def upload_avatar(
-    file: UploadFile, current_user: CurrentUser, auth_service: AuthServiceDep
-):
-    return auth_service.upload_avatar(current_user, file)
-
-
-@router.delete(
-    "/me/avatar",
-    status_code=status.HTTP_204_NO_CONTENT,
-    description="Delete the avatar of the current user",
-)
-def delete_avatar(current_user: CurrentUser, auth_service: AuthServiceDep):
-    return auth_service.delete_avatar(current_user)

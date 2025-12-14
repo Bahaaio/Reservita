@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from app.core.config import settings
 from app.core.security import (
     TokenData,
     create_access_token,
@@ -16,19 +15,10 @@ from app.dto.auth import (
     RegisterRequest,
     RegisterResponse,
     Token,
-    UpdateUserRequest,
-    UserResponse,
 )
+from app.dto.users import UserResponse
 from app.exceptions.auth import EmailAlreadyTakenError, InvalidCredentialsError
-from app.util.files import (
-    delete_file,
-    get_avatar_path,
-    get_image_response,
-    save_file,
-    validate_image_file,
-)
-from fastapi import Depends, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
+from fastapi import Depends, HTTPException, status
 from sqlmodel import select
 
 
@@ -72,31 +62,6 @@ class AuthService:
 
         token_data = TokenData(email=user.email)
         return create_access_token(token_data)
-
-    def get_profile(self, user: User) -> UserResponse:
-        return UserResponse.model_validate(user)
-
-    def update_profile(self, user: User, request: UpdateUserRequest) -> UserResponse:
-        user.sqlmodel_update(request.model_dump(exclude_unset=True))
-
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
-
-        return UserResponse.model_validate(user)
-
-    def get_avatar(self, user: User) -> FileResponse:
-        assert user.id is not None
-        return get_image_response(get_avatar_path(user.id))
-
-    def upload_avatar(self, user: User, file: UploadFile):
-        validate_image_file(file, max_size_mb=settings.MAX_AVATAR_SIZE_MB)
-        assert user.id is not None
-        save_file(file, get_avatar_path(user.id))
-
-    def delete_avatar(self, user: User):
-        assert user.id is not None
-        delete_file(get_avatar_path(user.id))
 
 
 def get_current_user(
