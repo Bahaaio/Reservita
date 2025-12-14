@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKeyConstraint
-from sqlmodel import Field, Index, Relationship, SQLModel
+from sqlmodel import Field, Index, Relationship, SQLModel, text
 
 
 class SeatType(str, Enum):
@@ -113,7 +113,7 @@ class Ticket(SQLModel, table=True):
             "event_id",
             "seat_number",
             unique=True,
-            sqlite_where="status = 'confirmed'",
+            sqlite_where=text("status = 'confirmed'"),
         ),
     )
 
