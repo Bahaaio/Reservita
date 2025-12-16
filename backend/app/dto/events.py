@@ -1,8 +1,95 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from app.db.models import EventCategory
-from pydantic import BaseModel, field_validator
+from fastapi import Depends, Query
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from typing_extensions import Self
+
+
+class EventFilterParams(BaseModel):
+    # Search keyword (e.g. ?q=concert)
+    q: str | None = None
+
+    # Filter by Category (e.g. ?category=sports&category=comedy)
+    category: list[EventCategory] | None = None
+
+    # Filter by City
+    city: str | None = None
+
+    # Date Range
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+
+    # Price Filters
+    min_price: float | None = None
+    max_price: float | None = None
+    is_free: bool | None = None
+
+    @field_validator("start_date", "end_date", mode="after")
+    @classmethod
+    def strip_timezone(cls, v: datetime | None):
+        if v:
+            return v.replace(tzinfo=None)
+        return v
+
+    @field_validator("q", "city")
+    @classmethod
+    def validate_not_blank(cls, v: str | None, info) -> str | None:
+        if v is not None:
+            stripped = v.strip()
+            if stripped == "":
+                raise ValueError(f"{info.field_name} cannot be blank")
+            return stripped
+        return v
+
+    @model_validator(mode="after")
+    def validate_filters(self) -> Self:
+        if self.start_date and self.end_date:
+            if self.start_date >= self.end_date:
+                raise ValueError("start_date must be before end_date")
+
+        if self.is_free is True and (
+            self.min_price is not None or self.max_price is not None
+        ):
+            raise ValueError(
+                "Cannot specify price filters when filtering for free events"
+            )
+
+        if self.min_price and self.max_price and self.min_price > self.max_price:
+            raise ValueError("min_price cannot be greater than max_price")
+
+        return self
+
+
+def get_event_filters(
+    q: str | None = None,
+    category: list[EventCategory] | None = None,
+    city: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    min_price: float | None = Query(default=None, ge=0),
+    max_price: float | None = Query(default=None, ge=0),
+    is_free: bool | None = None,
+) -> EventFilterParams:
+    try:
+        return EventFilterParams(
+            q=q,
+            category=category if category else None,
+            city=city,
+            start_date=start_date,
+            end_date=end_date,
+            min_price=min_price,
+            max_price=max_price,
+            is_free=is_free,
+        )
+    except ValidationError as e:
+        raise RequestValidationError(errors=e.errors())
+
+
+FilterParams = Annotated[EventFilterParams, Depends(get_event_filters)]
 
 
 class EventRequest(BaseModel):

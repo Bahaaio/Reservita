@@ -13,7 +13,12 @@ from app.db.models import (
     User,
 )
 from app.db.session import DBSession
-from app.dto.events import BannerResponse, EventRequest, EventResponse
+from app.dto.events import (
+    BannerResponse,
+    EventFilterParams,
+    EventRequest,
+    EventResponse,
+)
 from app.util.files import (
     delete_file,
     get_banner_path,
@@ -24,7 +29,7 @@ from app.util.files import (
 from fastapi import Depends, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from fastapi_pagination import Page, Params, create_page
-from sqlmodel import func, select
+from sqlmodel import col, func, select
 
 # FIX: n+1
 
@@ -43,15 +48,58 @@ class EventService:
 
         return self._event_to_response(db_event, current_user)
 
-    def list_all_events(
-        self, params: Params, current_user: User | None = None
+    def list_events(
+        self,
+        params: Params,
+        filters: EventFilterParams,
+        current_user: User | None = None,
     ) -> Page[EventResponse]:
-        total = self.db.exec(select(func.count()).select_from(Event)).one()
-        offset = (params.page - 1) * params.size
+        # 1. Base Query
+        query = select(Event)
 
-        db_events = self.db.exec(select(Event).offset(offset).limit(params.size)).all()
+        # 2. Apply Filters
+        if filters.q:
+            query = query.where(
+                (col(Event.title).ilike(f"%{filters.q}%"))
+                | (col(Event.description).ilike(f"%{filters.q}%"))
+            )
+
+        # Category Filter (Supports Multiple Selection using IN)
+        if filters.category:
+            query = query.where(col(Event.category).in_(filters.category))
+
+        # City Filter
+        if filters.city:
+            query = query.where(col(Event.city).ilike(f"%{filters.city}%"))
+
+        # Date Range Filter
+        if filters.start_date:
+            query = query.where(Event.starts_at >= filters.start_date)
+        if filters.end_date:
+            query = query.where(Event.starts_at <= filters.end_date)
+
+        # Price Range Filter
+        if filters.min_price is not None:
+            query = query.where(Event.ticket_price >= filters.min_price)
+        if filters.max_price is not None:
+            query = query.where(Event.ticket_price <= filters.max_price)
+
+        # Free/Paid Filter
+        if filters.is_free is not None:
+            if filters.is_free:
+                query = query.where(Event.ticket_price == 0)
+            else:
+                query = query.where(Event.ticket_price > 0)
+
+        # 3. Calculate Total
+        total = self.db.exec(select(func.count()).select_from(query.subquery())).one()
+
+        # 4. Pagination
+        offset = (params.page - 1) * params.size
+        db_events = self.db.exec(query.offset(offset).limit(params.size)).all()
 
         # FIX: n+1
+        # 5. Map to Response
         events: list[EventResponse] = [
             self._event_to_response(event, current_user) for event in db_events
         ]

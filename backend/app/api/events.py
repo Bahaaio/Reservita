@@ -1,6 +1,9 @@
 from uuid import UUID
 
-from app.dto.events import EventResponse
+from app.dto.events import (
+    EventResponse,
+    FilterParams,
+)
 from app.dto.pagination import PaginationParams
 from app.dto.seats import SeatsResponse
 from app.services.auth import OptionalCurrentUser
@@ -13,13 +16,14 @@ from fastapi_pagination import Page
 router = APIRouter(prefix="/events", tags=["Events"])
 
 
-@router.get("", description="List all events with pagination")
+@router.get("", description="List all events with optional filters and pagination")
 def list_all_events(
+    filters: FilterParams,
     params: PaginationParams,
     events_service: EventServiceDep,
     current_user: OptionalCurrentUser = None,
 ) -> Page[EventResponse]:
-    return events_service.list_all_events(params, current_user)
+    return events_service.list_events(params, filters, current_user)
 
 
 @router.get("/{event_id}", description="Get details of a specific event by its ID")
