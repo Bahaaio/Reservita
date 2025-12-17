@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 
 router = APIRouter()
 
-@router.post("/favorites", status_code=status.HTTP_204_NO_CONTENT, description="Add an event to user's favorites")
+@router.post("/favorites", status_code=status.HTTP_201_CREATED, description="Add an event to user's favorites")
 def add_to_favorite(
     request: FavoriteRequest,
     current_user: CurrentUser,
