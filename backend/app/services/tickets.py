@@ -1,7 +1,7 @@
-import uuid
 from datetime import datetime, timedelta
 from typing import Annotated
 
+from app.core.security import create_qr_code_token
 from app.db.models import Event, EventSeat, SeatType, Ticket, TicketStatus, User
 from app.db.session import DBSession
 from app.dto.tickets import TicketBookRequest, TicketResponse
@@ -41,8 +41,6 @@ class TicketService:
         if existing_ticket:
             raise HTTPException(status.HTTP_409_CONFLICT, "Seat is already booked")
 
-        generated_qr = f"TICKET-{request.event_id}-{request.seat_number}-{uuid.uuid4().hex[:6].upper()}"
-
         assert user.id is not None
 
         try:
@@ -50,11 +48,25 @@ class TicketService:
                 user_id=user.id,
                 event_id=request.event_id,
                 seat_number=request.seat_number,
-                qr_code=generated_qr,
+                qr_code="temp",  # placeholder
                 status=TicketStatus.CONFIRMED,
             )
 
             self.db.add(new_ticket)
+            self.db.flush()
+            self.db.refresh(new_ticket)
+
+            assert new_ticket.id is not None
+            assert event.id is not None
+
+            generated_qr = create_qr_code_token(
+                user_id=user.id,
+                ticket_id=new_ticket.id,
+                event_id=event.id,
+                expires_at=event.ends_at,
+            )
+            new_ticket.qr_code = generated_qr
+
             self.db.commit()
             self.db.refresh(new_ticket)
 

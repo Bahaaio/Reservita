@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from app.core.security import (
-    TokenData,
+    AccessTokenData,
     create_access_token,
     decode_access_token,
     hash_password,
@@ -46,7 +46,7 @@ class AuthService:
         self.db.commit()
         self.db.refresh(user)
 
-        token_data = TokenData(email=user.email)
+        token_data = AccessTokenData(email=user.email)
         token = create_access_token(token_data)
 
         return RegisterResponse(user=UserResponse.model_validate(user), token=token)
@@ -60,7 +60,7 @@ class AuthService:
         if not verify_password(password, user.hashed_password):
             raise InvalidCredentialsError()
 
-        token_data = TokenData(email=user.email)
+        token_data = AccessTokenData(email=user.email)
         return create_access_token(token_data)
 
 
