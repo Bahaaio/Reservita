@@ -1,12 +1,11 @@
-import io
 import uuid
 from datetime import datetime, timedelta
 from typing import Annotated
 
-import qrcode
 from app.db.models import Event, EventSeat, SeatType, Ticket, TicketStatus, User
 from app.db.session import DBSession
 from app.dto.tickets import TicketBookRequest, TicketResponse
+from app.util.qr import generate_qr_code, qr_code_response
 from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
@@ -151,20 +150,8 @@ class TicketService:
                 status.HTTP_500_INTERNAL_SERVER_ERROR, "Ticket QR code is invalid"
             )
 
-        qr = qrcode.QRCode(box_size=10, border=4)
-        qr.add_data(ticket.qr_code)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-
-        buf = io.BytesIO()
-        img.save(buf)
-        buf.seek(0)
-
-        return StreamingResponse(
-            buf,
-            media_type="image/png",
-            headers={"Content-Disposition": "inline; filename=qr.png"},
-        )
+        qr = generate_qr_code(ticket.qr_code)
+        return qr_code_response(qr)
 
     def _ticket_to_response(
         self, ticket: Ticket, event: Event, seat: EventSeat

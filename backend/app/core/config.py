@@ -21,5 +21,9 @@ class Settings(BaseSettings):
     MAX_BANNER_SIZE_MB: int = 10
     MAX_BANNERS_PER_EVENT: int = 5
 
+    # QR Code
+    QR_CODE_BOX_SIZE: int = 12
+    QR_CODE_BORDER_SIZE: int = 2
+
 
 settings = Settings()
