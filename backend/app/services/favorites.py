@@ -7,27 +7,28 @@ from app.dto.favorites import FavoriteRequest
 
 class FavoriteService:
     def __init__(self, db: DBSession):
-        self.db= db
+        self.db = db
 
     def add_to_favorites(
         self, user: User,request: FavoriteRequest
     ):
+        
         event = self.db.get(Event, request.event_id)
         if not event:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Event not found")
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail ="Event not found")
         
-        existing= self.db.exec(
+        existing = self.db.exec(
             select(FavoriteEvent)
             .where(FavoriteEvent.user_id == user.id)
             .where(FavoriteEvent.event_id == request.event_id) 
         ).first()
 
         if not existing:
-            favorite= FavoriteEvent(
-                user_id= user.id,
-                event_id=request.event_id
+            favorite = FavoriteEvent(
+                user_id = user.id,
+                event_id =request.event_id
             )
             self.db.add(favorite)
             self.db.commit()
@@ -35,10 +36,16 @@ class FavoriteService:
     def remove_from_favorites(
             self, user: User, request: FavoriteRequest
     ):
-        favorite= self.db.exec(
+        event = self.db.get(Event, request.event_id)
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail ="Event not found")
+        
+        favorite = self.db.exec(
             select(FavoriteEvent)
             .where(FavoriteEvent.user_id == user.id)
-            .where(FavoriteEvent.event_id== request.event_id)
+            .where(FavoriteEvent.event_id == request.event_id)
         ).first()
 
         if favorite:

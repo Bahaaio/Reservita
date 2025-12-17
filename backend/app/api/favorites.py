@@ -1,9 +1,9 @@
 from app.dto.favorites import FavoriteRequest
 from app.services.auth import CurrentUser
 from app.services.favorites import FavoriteServiceDep
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
-router = APIRouter()
+router = APIRouter(tags=["Favorites"])
 
 @router.post("/favorites", status_code=status.HTTP_201_CREATED, description="Add an event to user's favorites")
 def add_to_favorite(
