@@ -1,9 +1,9 @@
 from app.api.auth import router as auth_router
 from app.api.events import router as events_router
+from app.api.favorites import router as favorites_router
 from app.api.health import router as health_router
 from app.api.my_events import router as my_events_router
 from app.api.reviews import router as reviews_router
-from app.api.favorites import router as favorites_router
 from app.api.tickets import router as tickets_router
 from app.api.users import router as users_router
 from app.core.config import settings
