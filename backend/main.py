@@ -1,5 +1,6 @@
 from app.api.auth import router as auth_router
 from app.api.events import router as events_router
+from app.api.favorites import router as favorites_router
 from app.api.health import router as health_router
 from app.api.my_events import router as my_events_router
 from app.api.reviews import router as reviews_router
@@ -20,6 +21,7 @@ routers = [
     my_events_router,
     tickets_router,
     reviews_router,
+    favorites_router,
 ]
 for router in routers:
     app.include_router(router, prefix=settings.API_V1_STR)
