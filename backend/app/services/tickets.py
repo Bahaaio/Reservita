@@ -1,10 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Annotated
 
-from app.core.security import create_qr_code_token
+from app.core.security import create_qr_code_token, decode_qr_code_token
 from app.db.models import Event, EventSeat, SeatType, Ticket, TicketStatus, User
 from app.db.session import DBSession
-from app.dto.tickets import TicketBookRequest, TicketResponse
+from app.dto.tickets import (
+    QRCodeVerificationRequest,
+    QRCodeVerificationResponse,
+    TicketBookRequest,
+    TicketResponse,
+)
 from app.util.qr import generate_qr_code, qr_code_response
 from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -164,6 +169,38 @@ class TicketService:
 
         qr = generate_qr_code(ticket.qr_code)
         return qr_code_response(qr)
+
+    def verify_ticket_qr(
+        self, request: QRCodeVerificationRequest
+    ) -> QRCodeVerificationResponse:
+        try:
+            qr_token_data = decode_qr_code_token(request.qr_token)
+        except Exception:
+            return QRCodeVerificationResponse(valid=False)
+
+        ticket = self.db.get(Ticket, qr_token_data.ticket_id)
+
+        if not ticket:
+            return QRCodeVerificationResponse(valid=False)
+
+        if ticket.user_id != qr_token_data.user_id:
+            return QRCodeVerificationResponse(valid=False)
+
+        if ticket.event_id != qr_token_data.event_id:
+            return QRCodeVerificationResponse(valid=False)
+
+        if ticket.status == TicketStatus.CANCELLED:
+            return QRCodeVerificationResponse(valid=False)
+
+        if not ticket.event or not ticket.event_seat:
+            return QRCodeVerificationResponse(valid=False)
+
+        return QRCodeVerificationResponse(
+            valid=True,
+            ticket=self._ticket_to_response(
+                ticket, event=ticket.event, seat=ticket.event_seat
+            ),
+        )
 
     def _ticket_to_response(
         self, ticket: Ticket, event: Event, seat: EventSeat

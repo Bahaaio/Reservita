@@ -25,3 +25,20 @@ class TicketResponse(BaseModel):
     seat_number: int
     seat_type: SeatType
     price_paid: float
+
+
+class QRCodeVerificationRequest(BaseModel):
+    """
+    Validation schema for verifying a ticket QR code.
+    """
+
+    qr_token: str
+
+
+class QRCodeVerificationResponse(BaseModel):
+    """
+    The response sent back after verifying a ticket QR code.
+    """
+
+    valid: bool
+    ticket: TicketResponse | None = None
