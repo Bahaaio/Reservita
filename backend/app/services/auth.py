@@ -1,5 +1,7 @@
 from typing import Annotated
 
+from httpcore import request
+
 from app.core.security import (
     AccessTokenData,
     create_access_token,
@@ -15,6 +17,7 @@ from app.dto.auth import (
     RegisterRequest,
     RegisterResponse,
     Token,
+    ChangePasswordRequest,
 )
 from app.dto.users import UserResponse
 from app.exceptions.auth import EmailAlreadyTakenError, InvalidCredentialsError
@@ -70,6 +73,25 @@ class AuthService:
 
         token_data = AccessTokenData(email=user.email)
         return create_access_token(token_data)
+    
+    def change_password(
+        self, user: User, request: ChangePasswordRequest
+    ):
+        if not verify_password(request.old_password, user.hashed_password):
+            raise HTTPException(
+                status_code = status.HTTP_400_BAD_REQUEST,
+                detail = "Old password is incorrect"
+            )
+    
+        if verify_password(request.new_password, user.hashed_password):
+            raise HTTPException(
+                status_code = status.HTTP_400_BAD_REQUEST,
+                detail = "New password must be different from the old password" 
+            )
+    
+        user.hashed_password = hash_password(request.new_password)
+        self.db.add(user)
+        self.db.commit()
 
 
 def get_current_user(
@@ -122,3 +144,5 @@ def get_auth_service(db: DBSession, email_service: EmailServiceDep) -> AuthServi
 
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
