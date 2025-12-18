@@ -1,8 +1,6 @@
-from app.dto.users import (
-    UpdateUserRequest,
-    UserResponse,
-)
-from app.services.auth import CurrentUser
+from app.dto.auth import ChangePasswordRequest
+from app.dto.users import UpdateUserRequest, UserResponse
+from app.services.auth import AuthServiceDep, CurrentUser
 from app.services.users import UserServiceDep
 from fastapi import APIRouter, UploadFile, status
 from fastapi.responses import FileResponse
@@ -51,3 +49,16 @@ def upload_avatar(
 )
 def delete_avatar(current_user: CurrentUser, user_service: UserServiceDep):
     return user_service.delete_avatar(current_user)
+
+
+@router.patch(
+    "/password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Change the password of the current user",
+)
+def change_password(
+    request: ChangePasswordRequest,
+    current_user: CurrentUser,
+    auth_service: AuthServiceDep,
+):
+    auth_service.change_password(current_user, request)
