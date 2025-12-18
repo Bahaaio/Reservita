@@ -53,6 +53,7 @@ def delete_avatar(current_user: CurrentUser, user_service: UserServiceDep):
 
 @router.patch(
     "/password",
+    status_code=status.HTTP_204_NO_CONTENT,
     description="Change the password of the current user",
 )
 def change_password(
