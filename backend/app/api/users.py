@@ -1,12 +1,9 @@
-from app.dto.users import (
-    UpdateUserRequest,
-    UserResponse,
-)
-from app.services.auth import CurrentUser, AuthServiceDep
+from app.dto.auth import ChangePasswordRequest
+from app.dto.users import UpdateUserRequest, UserResponse
+from app.services.auth import AuthServiceDep, CurrentUser
 from app.services.users import UserServiceDep
 from fastapi import APIRouter, UploadFile, status
 from fastapi.responses import FileResponse
-from app.dto.auth import ChangePasswordRequest
 
 router = APIRouter(prefix="/users/me", tags=["Profile"])
 
@@ -63,4 +60,4 @@ def change_password(
     current_user: CurrentUser,
     auth_service: AuthServiceDep,
 ):
-    return auth_service.change_password(current_user, request)
+    auth_service.change_password(current_user, request)

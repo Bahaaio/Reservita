@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr, Field
 from app.dto.users import UserResponse
+from pydantic import BaseModel, EmailStr, Field
 
 
 class Token(BaseModel):
@@ -20,6 +20,7 @@ class RegisterRequest(BaseModel):
 class RegisterResponse(BaseModel):
     user: UserResponse
     token: Token
+
 
 class ChangePasswordRequest(BaseModel):
     old_password: str = Field(min_length=8)
