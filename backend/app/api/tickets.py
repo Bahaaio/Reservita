@@ -6,7 +6,7 @@ from app.dto.tickets import (
 )
 from app.services.auth import CurrentUser
 from app.services.tickets import TicketServiceDep
-from fastapi import APIRouter, status
+from fastapi import APIRouter, BackgroundTasks, status
 from fastapi.responses import StreamingResponse
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
@@ -25,8 +25,9 @@ def book_ticket(
     request: TicketBookRequest,
     current_user: CurrentUser,
     ticket_service: TicketServiceDep,
+    background_tasks: BackgroundTasks,
 ) -> TicketResponse:
-    return ticket_service.book_ticket(current_user, request)
+    return ticket_service.book_ticket(current_user, request, background_tasks)
 
 
 @router.get("/{ticket_id}", description="Get details of a specific ticket")
@@ -43,8 +44,9 @@ def cancel_ticket(
     ticket_id: int,
     current_user: CurrentUser,
     ticket_service: TicketServiceDep,
+    background_tasks: BackgroundTasks,
 ) -> TicketResponse:
-    return ticket_service.cancel_ticket(ticket_id, current_user)
+    return ticket_service.cancel_ticket(ticket_id, current_user, background_tasks)
 
 
 @router.get(

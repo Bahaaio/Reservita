@@ -18,15 +18,20 @@ from app.dto.auth import (
 )
 from app.dto.users import UserResponse
 from app.exceptions.auth import EmailAlreadyTakenError, InvalidCredentialsError
-from fastapi import Depends, HTTPException, status
+from fastapi import BackgroundTasks, Depends, HTTPException, status
 from sqlmodel import select
+
+from app.services.email import EmailServiceDep
 
 
 class AuthService:
-    def __init__(self, db: DBSession):
+    def __init__(self, db: DBSession, email_service: EmailServiceDep):
         self.db = db
+        self.email_service = email_service
 
-    def register_user(self, request: RegisterRequest) -> RegisterResponse:
+    def register_user(
+        self, request: RegisterRequest, background_tasks: BackgroundTasks
+    ) -> RegisterResponse:
         user = self.db.exec(select(User).where(User.email == request.email)).first()
 
         if user is not None:
@@ -48,6 +53,9 @@ class AuthService:
 
         token_data = AccessTokenData(email=user.email)
         token = create_access_token(token_data)
+
+        # send welcome email
+        background_tasks.add_task(self.email_service.send_welcome_email, user=user)
 
         return RegisterResponse(user=UserResponse.model_validate(user), token=token)
 
@@ -109,8 +117,8 @@ def get_current_agency(current_user: CurrentUser) -> User:
 CurrentAgency = Annotated[User, Depends(get_current_agency)]
 
 
-def get_auth_service(db: DBSession) -> AuthService:
-    return AuthService(db)
+def get_auth_service(db: DBSession, email_service: EmailServiceDep) -> AuthService:
+    return AuthService(db, email_service)
 
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]

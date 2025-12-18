@@ -17,3 +17,5 @@ venv/
 # Uploads
 uploads/
 static/
+
+.env

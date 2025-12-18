@@ -5,20 +5,23 @@ from app.db.models import Event, Review, Ticket, User
 from app.db.session import DBSession
 from app.dto.pagination import PaginationParams
 from app.dto.reviews import ReviewCreateRequest, ReviewResponse, ReviewUpdateRequest
-from fastapi import Depends, HTTPException, status
+from app.services.email import EmailServiceDep
+from fastapi import BackgroundTasks, Depends, HTTPException, status
 from fastapi_pagination import Page, create_page
 from sqlmodel import desc, func, select
 
 
 class ReviewService:
-    def __init__(self, db: DBSession):
+    def __init__(self, db: DBSession, email_service: EmailServiceDep):
         self.db = db
+        self.email_service = email_service
 
     def create_review(
         self,
         user: User,
         ticket_id: int,
         request: ReviewCreateRequest,
+        background_tasks: BackgroundTasks,
     ) -> ReviewResponse:
         ticket = self.db.exec(select(Ticket).where(Ticket.id == ticket_id)).first()
 
@@ -61,6 +64,15 @@ class ReviewService:
         self.db.add(review)
         self.db.commit()
         self.db.refresh(review)
+
+        # Send notification email to event creator (agency)
+        background_tasks.add_task(
+            self.email_service.send_review_notification_email,
+            agency=event.creator,
+            review=review,
+            event=event,
+            reviewer=user,
+        )
 
         return self._review_to_response(review)
 
@@ -158,8 +170,8 @@ class ReviewService:
         )
 
 
-def get_review_service(db: DBSession) -> ReviewService:
-    return ReviewService(db)
+def get_review_service(db: DBSession, email_service: EmailServiceDep) -> ReviewService:
+    return ReviewService(db, email_service)
 
 
 ReviewServiceDep = Annotated[ReviewService, Depends(get_review_service)]

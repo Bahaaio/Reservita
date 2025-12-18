@@ -2,7 +2,7 @@ from app.dto.pagination import PaginationParams
 from app.dto.reviews import ReviewCreateRequest, ReviewResponse, ReviewUpdateRequest
 from app.services.auth import CurrentUser
 from app.services.reviews import ReviewServiceDep
-from fastapi import APIRouter, status
+from fastapi import APIRouter, BackgroundTasks, status
 from fastapi_pagination import Page
 
 router = APIRouter(tags=["Reviews"])
@@ -29,8 +29,11 @@ def create_review(
     request: ReviewCreateRequest,
     current_user: CurrentUser,
     reviews_service: ReviewServiceDep,
+    background_tasks: BackgroundTasks,
 ) -> ReviewResponse:
-    return reviews_service.create_review(current_user, ticket_id, request)
+    return reviews_service.create_review(
+        current_user, ticket_id, request, background_tasks
+    )
 
 
 @router.get(

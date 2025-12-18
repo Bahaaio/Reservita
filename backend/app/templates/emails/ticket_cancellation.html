@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: #e74c3c;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content { 
+            padding: 40px 30px;
+            background: #ffffff;
+        }
+        .content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .info-box p {
+            margin: 8px 0;
+        }
+        .info-box strong {
+            color: #555;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .notice {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ticket Cancelled</h1>
+        </div>
+
+        <div class="content">
+            <h2>Hello {{ user_name }},</h2>
+            <p>Your ticket for <strong>{{ event_name }}</strong> has been successfully cancelled.</p>
+
+            <div class="info-box">
+                <h3>Cancellation Details</h3>
+                <p><strong>Ticket ID:</strong> #{{ ticket_id }}</p>
+                <p><strong>Event:</strong> {{ event_name }}</p>
+                <p><strong>Event Date:</strong> {{ event_date }}</p>
+                <p><strong>Seat Number:</strong> {{ seat_number }}</p>
+                <p><strong>Cancelled On:</strong> {{ cancelled_at }}</p>
+            </div>
+
+            <div class="notice">
+                <strong>Refund Information:</strong><br>
+                If you paid for this ticket, a refund will be processed according to our refund policy. 
+                Please allow 5-7 business days for the refund to appear in your account.
+            </div>
+
+            <p>We hope to see you at another event soon!</p>
+
+            <center>
+                <a href="{{ link }}" class="button">Browse More Events</a>
+            </center>
+        </div>
+
+        <div class="footer">
+            We hope to see you again soon!<br>
+            &copy; 2025 {{ project_name }}. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

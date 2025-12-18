@@ -1,3 +1,4 @@
+import base64
 import io
 
 import qrcode
@@ -33,6 +34,23 @@ def generate_qr_code(
     buf.seek(0)
 
     return buf
+
+def generate_qr_code_base64(data: str) -> str:
+    """
+    Generate a QR code and return as base64-encoded string.
+
+    Args:
+        data: The data to encode in the QR code
+
+    Returns:
+        Base64-encoded PNG image string (ready for data URI)
+    """
+
+    qr_buffer = generate_qr_code(data)
+    qr_bytes = qr_buffer.getvalue()
+    base64_string = base64.b64encode(qr_bytes).decode('utf-8')
+
+    return base64_string
 
 
 def qr_code_response(

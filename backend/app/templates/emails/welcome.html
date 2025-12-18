@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+        }
+        .content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .content ul {
+            line-heigt: 1.8;
+        }
+        .button {
+            display: inine-block;
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ project_name }}</h1>
+        </div>
+        <div class="content">
+            <h2>Welcome, {{ user_name }}!</h2>
+            <p>Thank you for registering with {{ project_name }}. You now have access to:</p>
+            <ul>
+                <li><strong>Browse events</strong> - Discover exciting events in your area</li>
+                <li><strong>Book tickets</strong> - Secure your spot with just a few clicks</li>
+                <li><strong>Manage bookings</strong> - View and manage all your tickets in one place</li>
+                <li><strong>Leave reviews</strong> - Share your experience after attending events</li>
+            </ul>
+            <p>Ready to get started?</p>
+            <a href="{{ link }}" class="button">Browse Events</a>
+        </div>
+        <div class="footer">
+            &copy; 2025 {{ project_name }}. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

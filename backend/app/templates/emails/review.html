@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: #f39c12;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size:24px;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+        }
+        .content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .info-box p {
+            margin: 8px 0;
+        }
+        .info-box strong {
+            color: #555;
+            display: inline-block;
+            min-width: 100px;
+        }
+        .stars {
+            color: #f39c12;
+            font-size: 18px;
+        }
+        .review-comment {
+            background: white;
+            border-left: 3px solid #f39c12;
+            padding: 15px;
+            margin: 15px 0;
+            font-style: italic;
+            color: #555;
+        }
+        .footer {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Review Received</h1>
+        </div>
+
+        <div class="content">
+           <h2>Hello {{ agency_name }},</h2>
+            <p>You have received a new review for your event <strong>{{ event_name }}</strong>.</p>
+
+            <div class="info-box">
+                <h3>Review Details</h3>
+                <p><strong>Rating:</strong> <span class="stars">{{ rating }}/5 ★</span></p>
+                <p><strong>Reviewer:</strong> {{ reviewer_name }}</p>
+                <p><strong>Event:</strong> {{ event_name }}</p>
+           </div>
+
+            <div class="info-box">
+                <h3>Comment</h3>
+                <div class="review-comment">
+                   {{ review_comment }}
+                </div>
+            </div>
+
+            <p>Thank you for hosting great events!</p>
+        </div>
+
+        <div class="footer">
+            Keep up the great work!<br>
+            &copy; 2025 {{ project_name }}. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

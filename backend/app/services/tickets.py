@@ -10,18 +10,25 @@ from app.dto.tickets import (
     TicketBookRequest,
     TicketResponse,
 )
+from app.services.email import EmailServiceDep
 from app.util.qr import generate_qr_code, qr_code_response
-from fastapi import Depends, HTTPException, status
+from fastapi import BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 
 class TicketService:
-    def __init__(self, db: DBSession):
+    def __init__(self, db: DBSession, email_service: EmailServiceDep):
         self.db = db
+        self.email_service = email_service
 
-    def book_ticket(self, user: User, request: TicketBookRequest) -> TicketResponse:
+    def book_ticket(
+        self,
+        user: User,
+        request: TicketBookRequest,
+        background_tasks: BackgroundTasks,
+    ) -> TicketResponse:
         event = self.db.get(Event, request.event_id)
         if not event:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
@@ -75,6 +82,15 @@ class TicketService:
             self.db.commit()
             self.db.refresh(new_ticket)
 
+            # Send confirmation email
+            background_tasks.add_task(
+                self.email_service.send_ticket_confirmation_email,
+                user=user,
+                ticket=new_ticket,
+                event=event,
+                seat=seat,
+            )
+
             return self._ticket_to_response(new_ticket, event, seat)
         except IntegrityError:
             self.db.rollback()
@@ -109,7 +125,9 @@ class TicketService:
 
         return self._ticket_to_response(ticket, event, seat)
 
-    def cancel_ticket(self, ticket_id: int, user: User) -> TicketResponse:
+    def cancel_ticket(
+        self, ticket_id: int, user: User, background_tasks: BackgroundTasks
+    ) -> TicketResponse:
         ticket = self.db.get(Ticket, ticket_id)
 
         if not ticket or ticket.user_id != user.id:
@@ -150,6 +168,14 @@ class TicketService:
 
         if not seat:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Seat information not found")
+
+        # Send cancellation email in background
+        background_tasks.add_task(
+            self.email_service.send_ticket_cancellation_email,
+            user,
+            ticket,
+            event,
+        )
 
         return self._ticket_to_response(ticket, event, seat)
 
@@ -228,9 +254,8 @@ class TicketService:
         )
 
 
-# Dependency Injection Setup
-def get_ticket_service(db: DBSession) -> TicketService:
-    return TicketService(db)
+def get_ticket_service(db: DBSession, email_service: EmailServiceDep) -> TicketService:
+    return TicketService(db, email_service)
 
 
 TicketServiceDep = Annotated[TicketService, Depends(get_ticket_service)]

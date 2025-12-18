@@ -6,7 +6,7 @@ from app.dto.auth import (
     Token,
 )
 from app.services.auth import AuthServiceDep
-from fastapi import APIRouter, Form, status
+from fastapi import APIRouter, BackgroundTasks, Form, status
 from pydantic import EmailStr
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -20,8 +20,9 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 def register(
     request: RegisterRequest,
     auth_service: AuthServiceDep,
+    background_tasks: BackgroundTasks,
 ) -> RegisterResponse:
-    return auth_service.register_user(request)
+    return auth_service.register_user(request, background_tasks)
 
 
 @router.post(

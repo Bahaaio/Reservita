@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Aria, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin:  auto;
+            background-color: #ffffff;
+        }
+        .header
+            background: #27ae60;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: ;
+            font-size: 24px;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+        }
+        .content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .info-box p {
+            margin: 8px 0;
+        }
+        .info-box strong {
+            color: #555;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ticket Confirmed!</h1>
+        </div>
+
+        <div class="content">
+            <h2>Hello {{ user_name }},</h2>
+            <p>Great news! Your ticket for <strong>{{ event_name }}</strong> has been confirmed.</p>
+
+            <div class="info-box">
+                <h3>Event Details</h3>
+                <p><strong>Event:</strong> {{ event_name }}</p>
+                <p><strong>Date:</strong> {{ event_date }}</p>
+                <p><strong>Time:</strong> {{ event_time }}</p>
+                <p><strong>Location:</strong> {{ event_location }}</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Ticket Details</h3>
+                <p><strong>Ticket ID:</strong> #{{ ticket_id }}</p>
+                <p><strong>Seat Number:</strong> {{ seat_number }}</p>
+                <p><strong>Seat Type:</strong> {{ seat_type }}</p>
+                <p><strong>Price:</strong> ${{ price }}</p>
+            </div>
+
+            <div class="info-box" style="text-align: center;">
+                <h3>Your QR Code</h3>
+                <p>Present this QR code at the venue entrance:</p>
+                <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="Ticket QR Code"
+                        style="max-width: 250px; margin: 15px auto; display: block; border: 2px solid #27ae60; padding: 10px; background: white;">
+                <p style="font-size: 12px; color: #7f8c8d;">Save this email or screenshot the QR code for entry</p>
+            </div>
+
+            <center>
+                <a href="{{ link }}" class="button">View Ticket</a>
+            </center>
+        </div>
+
+        <div class="footer">
+            See you at the event!<br>
+            &copy; 2025 {{ project_name }}. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
