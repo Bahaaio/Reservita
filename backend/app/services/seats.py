@@ -3,6 +3,7 @@ from typing import Annotated
 from app.db.models import Event, EventSeat, Ticket, TicketStatus
 from app.db.session import DBSession
 from app.dto.seats import SeatPricing, SeatResponse, SeatsResponse, SeatsSummary
+from app.util.seat_format import format_seat_label
 from fastapi import Depends, HTTPException, status
 from sqlmodel import select
 
@@ -32,6 +33,7 @@ class SeatService:
         seat_responses = [
             SeatResponse(
                 seat_number=seat.seat_number,
+                seat_label=format_seat_label(seat.seat_number),
                 seat_type=seat.seat_type,
                 is_available=seat.seat_number not in booked_seat_numbers,
             )

@@ -5,7 +5,7 @@ from uuid import UUID
 from app.db.models import EventCategory
 from fastapi import Depends, Query
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 from typing_extensions import Self
 
 
@@ -103,14 +103,14 @@ class EventRequest(BaseModel):
     ends_at: datetime
     ticket_price: float
     vip_ticket_price: float
+    total_seats: int = Field(ge=1)
+    vip_seats_count: int = Field(ge=0)
 
     @field_validator("starts_at", "ends_at", mode="after")
     @classmethod
     def strip_timezone(cls, v: datetime):
         """Remove timezone info from incoming datetimes."""
         return v.replace(tzinfo=None)
-
-    # TODO: add total vip and total regular options
 
 
 class EventResponse(BaseModel):
@@ -126,6 +126,8 @@ class EventResponse(BaseModel):
     ticket_price: float
     vip_ticket_price: float
     banner_ids: list[UUID]
+    total_seats: int
+    vip_seats_count: int
 
     average_rating: float
     is_favorited: bool  # if authenticated user has favorited this event

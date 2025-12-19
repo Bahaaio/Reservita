@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class SeatResponse(BaseModel):
     seat_number: int
+    seat_label: str
     seat_type: SeatType
     is_available: bool
 

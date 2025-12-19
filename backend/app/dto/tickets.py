@@ -23,6 +23,7 @@ class TicketResponse(BaseModel):
     status: TicketStatus
     purchased_at: datetime
     seat_number: int
+    seat_label: str
     seat_type: SeatType
     price_paid: float
 

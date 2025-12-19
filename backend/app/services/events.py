@@ -139,6 +139,11 @@ class EventService:
                 "Event start time must be before end time",
             )
 
+        if request.vip_seats_count > request.total_seats:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "VIP seats count cannot exceed total seats"
+            )
+
         event = Event(**request.model_dump())
         event.creator = agency
 
@@ -148,16 +153,14 @@ class EventService:
 
         assert event.id is not None
 
-        # TODO: change hardcoded 100 seats (10 vip + 90 regular)
-
         vip_seats: list[EventSeat] = [
             EventSeat(event_id=event.id, seat_number=i + 1, seat_type=SeatType.VIP)
-            for i in range(10)
+            for i in range(event.vip_seats_count)
         ]
 
         regular_seats: list[EventSeat] = [
             EventSeat(event_id=event.id, seat_number=i + 1, seat_type=SeatType.REGULAR)
-            for i in range(10, 100)
+            for i in range(event.vip_seats_count, event.total_seats)
         ]
 
         self.db.add_all(vip_seats)

@@ -12,6 +12,7 @@ from app.dto.tickets import (
 )
 from app.services.email import EmailServiceDep
 from app.util.qr import generate_qr_code, qr_code_response
+from app.util.seat_format import format_seat_label
 from fastapi import BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
@@ -249,6 +250,7 @@ class TicketService:
             status=ticket.status,
             purchased_at=ticket.purchased_at,
             seat_number=ticket.seat_number,
+            seat_label=format_seat_label(ticket.seat_number),
             seat_type=seat.seat_type,
             price_paid=price,
         )

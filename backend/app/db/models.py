@@ -59,10 +59,11 @@ class Event(SQLModel, table=True):
     address: str = Field(nullable=False)
     starts_at: datetime = Field(index=True)
     ends_at: datetime = Field(index=True)
-    # TODO: change
     ticket_price: float = Field(ge=0)
     vip_ticket_price: float = Field(ge=0)
     creator_id: int = Field(foreign_key="user.id")
+    total_seats: int = Field(default=100, ge=1)
+    vip_seats_count: int = Field(default=10, ge=0)
 
     # Relationships
     creator: User = Relationship(back_populates="created_events")
