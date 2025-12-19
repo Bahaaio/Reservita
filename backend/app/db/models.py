@@ -92,9 +92,7 @@ class Ticket(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id")
     event_id: int = Field(foreign_key="event.id")
     seat_number: int
-    qr_code: str = Field(
-        nullable=False, unique=True, index=True
-    )  # "TICKET-XXXX" # TODO: make jwt
+    qr_code: str = Field(nullable=False)
     status: TicketStatus = Field(
         default=TicketStatus.CONFIRMED, nullable=False, index=True
     )

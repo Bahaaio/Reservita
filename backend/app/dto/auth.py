@@ -8,12 +8,13 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
-# TODO: add validation rules
 class RegisterRequest(BaseModel):
-    full_name: str
-    email: EmailStr
+    full_name: str = Field(min_length=1, max_length=100)
+    email: EmailStr = Field(max_length=100)
     password: str = Field(min_length=8)
-    phone_number: str
+    phone_number: str = Field(
+        min_length=7, max_length=15, pattern=r"^\+?[0-9\s\-\(\)]+$"
+    )
     is_agency: bool
 
 
