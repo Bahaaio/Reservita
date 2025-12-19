@@ -144,6 +144,12 @@ class EventService:
                 status.HTTP_400_BAD_REQUEST, "VIP seats count cannot exceed total seats"
             )
 
+        if request.vip_ticket_price < request.ticket_price:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "VIP ticket price must be greater than or equal to regular ticket price",
+            )
+
         event = Event(**request.model_dump())
         event.creator = agency
 
