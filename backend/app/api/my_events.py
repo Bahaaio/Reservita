@@ -44,6 +44,19 @@ def update_event(
     return events_service.update_event(event_id, request, current_agency)
 
 
+@router.delete(
+    "/{event_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete an existing event for the current agency",
+)
+def delete_event(
+    event_id: int,
+    current_agency: CurrentAgency,
+    events_service: EventServiceDep,
+):
+    events_service.delete_event(event_id, current_agency)
+
+
 @router.post(
     "/{event_id}/banners",
     status_code=status.HTTP_201_CREATED,

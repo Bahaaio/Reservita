@@ -10,6 +10,7 @@ from app.db.models import (
     FavoriteEvent,
     Review,
     SeatType,
+    Ticket,
     User,
 )
 from app.db.session import DBSession
@@ -29,7 +30,7 @@ from app.util.files import (
 from fastapi import Depends, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from fastapi_pagination import Page, Params, create_page
-from sqlmodel import col, func, select
+from sqlmodel import col, delete, func, select
 
 # FIX: n+1
 
@@ -183,6 +184,36 @@ class EventService:
         self.db.refresh(event)
 
         return self._event_to_response(event)
+
+    def delete_event(self, event_id: int, agency: User):
+        event = self.db.get(Event, event_id)
+
+        if not event:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
+
+        if event.creator_id != agency.id:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Not authorized")
+
+        # Delete dependent rows in a safe order (no cascade configured)
+        self.db.exec(delete(Review).where(Review.event_id == event_id))  # type:ignore[call-overload]
+
+        # delete tickets
+        self.db.exec(delete(Ticket).where(Ticket.event_id == event_id))  # type:ignore[call-overload]
+
+        # delete favorites
+        self.db.exec(delete(FavoriteEvent).where(FavoriteEvent.event_id == event_id))  # type:ignore[call-overload]
+
+        # delete seats
+        self.db.exec(delete(EventSeat).where(EventSeat.event_id == event_id))  # type:ignore[call-overload]
+
+        # delete banners and their files
+        for banner in event.banners:
+            delete_file(get_banner_path(banner.id))
+        self.db.exec(delete(EventBanner).where(EventBanner.event_id == event_id))  # type:ignore[call-overload]
+
+        # delete the event
+        self.db.delete(event)
+        self.db.commit()
 
     def get_banner(self, banner_id: UUID) -> FileResponse:
         banner = self.db.get(EventBanner, banner_id)
