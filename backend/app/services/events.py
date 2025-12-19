@@ -11,9 +11,11 @@ from app.db.models import (
     Review,
     SeatType,
     Ticket,
+    TicketStatus,
     User,
 )
 from app.db.session import DBSession
+from app.dto.analytics import AgencyAnalyticsResponse, AgencyEventAnalyticsResponse
 from app.dto.events import (
     BannerResponse,
     EventFilterParams,
@@ -30,7 +32,7 @@ from app.util.files import (
 from fastapi import Depends, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from fastapi_pagination import Page, Params, create_page
-from sqlmodel import col, delete, func, select
+from sqlmodel import case, col, delete, func, select
 
 # FIX: n+1
 
@@ -278,6 +280,101 @@ class EventService:
 
         self.db.delete(banner)
         self.db.commit()
+
+    def get_agency_analytics(self, agency: User) -> AgencyAnalyticsResponse:
+        """Get aggregated analytics for all agency events."""
+        # Count total, active, and past events
+        total_events_count = self.db.exec(
+            select(func.count()).where(Event.creator_id == agency.id)
+        ).one()
+
+        # Calculate tickets sold and revenue
+        # Join to EventSeat to determine ticket pricing based on seat type
+        tickets_sold_stmt = (
+            select(
+                func.count(Ticket.id),  # type: ignore
+                func.sum(
+                    case(
+                        (
+                            EventSeat.seat_type == SeatType.VIP,
+                            Event.vip_ticket_price,
+                        ),
+                        else_=Event.ticket_price,
+                    )
+                ),
+            )
+            .select_from(Ticket)
+            .join(Event, Ticket.event_id == Event.id)  # type: ignore
+            .join(
+                EventSeat,
+                (EventSeat.event_id == Ticket.event_id)  # type: ignore
+                & (EventSeat.seat_number == Ticket.seat_number),  # type: ignore
+            )
+            .where(Event.creator_id == agency.id)
+            .where(Ticket.status == TicketStatus.CONFIRMED)
+        )
+
+        total_tickets_sold, total_revenue = self.db.exec(tickets_sold_stmt).one()
+
+        return AgencyAnalyticsResponse(
+            total_events=int(total_events_count or 0),
+            total_tickets_sold=int(total_tickets_sold or 0),
+            total_revenue=float(total_revenue or 0.0),
+        )
+
+    def list_agency_events_analytics(
+        self, agency: User
+    ) -> list[AgencyEventAnalyticsResponse]:
+        """Get per-event analytics for all agency events."""
+        # Select event details and aggregate ticket data
+        # Join to EventSeat to determine ticket pricing based on seat type
+        stmt = (
+            select(
+                Event.id,
+                func.count(Ticket.id),  # type: ignore
+                func.sum(
+                    case(
+                        (
+                            EventSeat.seat_type == SeatType.VIP,
+                            Event.vip_ticket_price,
+                        ),
+                        else_=Event.ticket_price,
+                    )
+                ),
+            )
+            .select_from(Event)
+            .outerjoin(
+                Ticket,
+                (Ticket.event_id == Event.id)  # type: ignore
+                & (Ticket.status == TicketStatus.CONFIRMED),  # type: ignore
+            )
+            .outerjoin(
+                EventSeat,
+                (EventSeat.event_id == Event.id)  # type: ignore
+                & (EventSeat.seat_number == Ticket.seat_number),  # type: ignore
+            )
+            .where(Event.creator_id == agency.id)
+            .group_by(Event.id, Event.title, Event.total_seats)  # type: ignore
+        )
+
+        rows = self.db.exec(stmt).all()
+        results: list[AgencyEventAnalyticsResponse] = []
+
+        for event_id, tickets_sold, revenue in rows:
+            if event_id is None:
+                continue
+
+            tickets_sold_count = int(tickets_sold or 0)
+
+            results.append(
+                AgencyEventAnalyticsResponse(
+                    event_id=int(event_id),
+                    tickets_sold=tickets_sold_count,
+                    revenue=float(revenue or 0.0),
+                )
+            )
+
+        return results
 
     def _event_to_response(
         self,

@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from app.dto.analytics import AgencyAnalyticsResponse, AgencyEventAnalyticsResponse
 from app.dto.events import BannerResponse, EventRequest, EventResponse
 from app.dto.pagination import PaginationParams
 from app.services.auth import CurrentAgency
@@ -83,3 +84,25 @@ def delete_banner(
     events_service: EventServiceDep,
 ):
     events_service.delete_banner(event_id, banner_id, current_agency)
+
+
+@router.get(
+    "/analytics",
+    description="Get analytics for the current agency",
+)
+def get_agency_analytics(
+    current_agency: CurrentAgency,
+    events_service: EventServiceDep,
+) -> AgencyAnalyticsResponse:
+    return events_service.get_agency_analytics(current_agency)
+
+
+@router.get(
+    "/analytics/events",
+    description="List analytics for each event of the current agency",
+)
+def list_agency_events_analytics(
+    current_agency: CurrentAgency,
+    events_service: EventServiceDep,
+) -> list[AgencyEventAnalyticsResponse]:
+    return events_service.list_agency_events_analytics(current_agency)
