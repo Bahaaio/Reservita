@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///app.db"
 
     # Project
-    PROJECT_NAME: str = "Ticket Reservation System"
-    FRONTEND_URL: str = "http://localhost:3000"
+    PROJECT_NAME: str = "Reservita"
+    FRONTEND_URL: str = "http://127.0.0.1:8080"
 
     # JWT/Auth
     SECRET_KEY: str = "d07bbefa967067a74274b4f615356a01eac34ce5efaced31ff1486a00be9bf00"
@@ -31,14 +31,14 @@ class Settings(BaseSettings):
     QR_CODE_BORDER_SIZE: int = 2
 
     # Email
-    SMTP_PORT: int = 2525
+    SMTP_PORT: int = 587
     SMTP_HOST: str | None = None
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
     EMAILS_FROM_EMAIL: EmailStr | None = None
     EMAILS_FROM_NAME: str | None = None
 
-    @computed_field 
+    @computed_field
     @property
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
