@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
 
+from app.core.config import settings
 from sqlalchemy import ForeignKeyConstraint
 from sqlmodel import Field, Index, Relationship, SQLModel, text
 
@@ -108,6 +109,14 @@ class Ticket(SQLModel, table=True):
         ),
         # Unique index to ensure a seat can only be confirmed once per event
         Index(
+            "idx_unique_confirmed_seat",
+            "event_id",
+            "seat_number",
+            unique=True,
+            postgresql_where=text("status = 'confirmed'"),
+        )
+        if settings.DATABASE_URL.startswith("postgresql://")
+        else Index(
             "idx_unique_confirmed_seat",
             "event_id",
             "seat_number",

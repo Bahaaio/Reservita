@@ -4,7 +4,7 @@ from app.core.config import settings
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True, echo=False)
 
 
 def init_db():

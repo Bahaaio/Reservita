@@ -33,6 +33,7 @@ mdurl==0.1.2
 more-itertools==10.8.0
 pillow==12.0.0
 premailer==3.10.0
+psycopg2-binary==2.9.11
 pwdlib==0.3.0
 pycparser==2.23
 pydantic==2.12.5
