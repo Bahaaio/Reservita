@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera Scan | Resrvetia</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .scan-container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+    .scan-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 24px;
+    }
+    .scan-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .scan-title { color:#fff; font-weight:800; font-size:1.4rem; display:flex; align-items:center; gap:10px; }
+    .scan-controls { display:flex; gap:10px; flex-wrap:wrap; }
+    .scan-controls .btn { padding:10px 14px; border-radius:10px; font-weight:700; border:1px solid var(--border-light); color:#fff; background: var(--bg-card-hover); cursor:pointer; }
+    .scan-controls .btn.primary { background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary)); border:none; }
+    .scan-controls .btn:disabled { opacity:0.6; cursor:not-allowed; }
+    .video-wrap { position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--border-light); background:#000; }
+    video { width:100%; height:auto; display:block; }
+    .video-overlay { position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:center; }
+    .frame { width:70%; max-width:520px; aspect-ratio:1; border:2px dashed rgba(255,255,255,0.35); border-radius:16px; }
+    .status { margin-top:12px; color: var(--text-muted); font-size:0.95rem; display:flex; align-items:center; gap:8px; }
+    .device-row { display:flex; gap:10px; margin-top:12px; }
+    select.device-select { flex:1; background: var(--bg-card-hover); color:#fff; border:1px solid var(--border-light); border-radius:10px; padding:10px; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="logo" onclick="window.location.href='index.html'">
+        <div class="logo-icon"><i class="fa-solid fa-gem"></i></div>
+        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="scan-container">
+    <div class="scan-card">
+      <div class="scan-header">
+        <div class="scan-title"><i class="fa-solid fa-camera"></i> Camera Scanner</div>
+        <div class="scan-controls">
+          <button id="startBtn" class="btn primary"><i class="fa-solid fa-play"></i> Start Camera</button>
+          <button id="stopBtn" class="btn" disabled><i class="fa-solid fa-stop"></i> Stop</button>
+          <button id="flipBtn" class="btn" disabled><i class="fa-solid fa-repeat"></i> Switch</button>
+        </div>
+      </div>
+
+      <div class="device-row">
+        <select id="deviceSelect" class="device-select" title="Select camera"></select>
+      </div>
+
+      <div class="video-wrap" style="margin-top:12px;">
+        <video id="preview" playsinline></video>
+        <div class="video-overlay"><div class="frame"></div></div>
+      </div>
+
+      <div class="status"><i class="fa-solid fa-circle-info"></i><span id="statusText">Grant camera permission to start.</span></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/camera.js"></script>
+</body>
+</html>

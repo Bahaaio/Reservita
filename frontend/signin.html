@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Resrvetia Events</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Sign In CSS-->
+    <link rel="stylesheet" href="css/sigin.css">
+
+</head>
+<body>
+
+    <!-- Simplified Nav -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+                <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="form-container">
+                <div class="auth-header">
+                    <h1 class="auth-title">Welcome Back</h1>
+                    <p class="auth-subtitle">Enter your details to access your tickets.</p>
+                </div>
+
+                <form onsubmit="handleAuth(event, 'Login')">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <input type="email" class="form-input" placeholder="john@example.com" required>
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <label class="form-label" style="margin-bottom: 0;">Password</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-input password-field" placeholder="••••••••" required>
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility(this)">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signupForm" class="form-container hidden">
+                <div class="auth-header">
+                    <h1 class="auth-title">Join Resrvetia</h1>
+                    <p class="auth-subtitle">Discover and book the best events near you.</p>
+                </div>
+
+                <form onsubmit="handleAuth(event, 'Sign Up')">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-input" placeholder="John Doe" required>
+                            <i class="fa-solid fa-user input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <input type="email" class="form-input" placeholder="john@example.com" required>
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <div class="input-wrapper">
+                            <input type="tel" class="form-input" placeholder="+20123456789" required>
+                            <i class="fa-solid fa-phone input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">I am a</label>
+                        <div class="input-wrapper">
+                            <select class="form-input" required style="cursor: pointer;">
+                                <option value="user">User (Book Events)</option>
+                                <option value="agency">Agency (Host Events)</option>
+                            </select>
+                            <i class="fa-solid fa-briefcase input-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-input password-field" placeholder="Create a password" required>
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility(this)">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-input password-field" placeholder="Confirm your password" required>
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility(this)">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+            </div>
+
+            <!-- Footer Toggle -->
+            <div class="auth-footer">
+                <p id="footerText">
+                    Don't have an account? 
+                    <span class="auth-link" onclick="switchTab('signup')">Sign Up</span>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/signin-page.js"></script>
+    <script src="js/signin.js"></script>
+</body>
+</html>

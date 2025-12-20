@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agency Dashboard | Resrvetia Events</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body onload="protectDashboard('agency'); initializeUserNavbar();">
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo" onclick="window.scrollTo(0,0)">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="#analytics" class="nav-link">Analytics</a>
+                <a href="About.html" class="nav-link">About Us</a>
+            </div>
+
+            <!-- User Info & Logout -->
+            <div id="userInfo"></div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Container -->
+    <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="index.html" class="mobile-link">Home</a>
+        <a href="#events" class="mobile-link">My Events</a>
+        <a href="#analytics" class="mobile-link">Analytics</a>
+        <a href="About.html" class="mobile-link">About Us</a>
+        <button onclick="logout()" class="mobile-link" style="background: none; text-align: left; color: var(--brand-primary); padding: 12px 20px;">
+            <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+            
+            <!-- Hero Welcome Section -->
+            <section class="dashboard-hero">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="welcome-badge">
+                            <i class="fa-solid fa-building"></i>
+                            <span>Agency Dashboard</span>
+                        </div>
+                        <h1 class="hero-title">Welcome, <span id="userName" class="gradient-text"></span>!</h1>
+                        <p class="hero-description">Manage your events, track performance, and grow your agency business.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn-hero-primary" onclick="openCreateEventModal()">
+                            <i class="fa-solid fa-plus"></i>
+                            Create Event
+                        </button>
+                        <a href="#events" class="btn-hero-secondary">
+                            <i class="fa-solid fa-calendar"></i>
+                            My Events
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalEvents">0</div>
+                            <div class="stat-label">Total Events</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalAttendees">0</div>
+                            <div class="stat-label">Total Attendees</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalRevenue">$0</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Events Section -->
+            <section id="events" class="tickets-section">
+                <div class="section-header-flex">
+                    <div>
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            My Events
+                        </h2>
+                        <p class="section-subtitle">All events created and managed by your agency</p>
+                    </div>
+                    <button class="btn-hero-primary" style="height: fit-content;" onclick="openCreateEventModal()">
+                        <i class="fa-solid fa-plus"></i>
+                        Create Event
+                    </button>
+                </div>
+
+                <div id="eventsList" class="tickets-grid">
+                    <!-- Events will be populated here -->
+                    <div class="empty-state-modern">
+                        <div class="empty-illustration">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <h3>No events yet</h3>
+                        <p>Create your first event to start attracting attendees and building your portfolio!</p>
+                        <button class="btn-empty-state" onclick="openCreateEventModal()">
+                            <i class="fa-solid fa-plus"></i>
+                            Create Your First Event
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal-backdrop">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    Create New Event
+                </h2>
+                <button class="modal-close" onclick="closeCreateEventModal()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createEventForm" onsubmit="handleCreateEvent(event)">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="eventTitle">
+                                <i class="fa-solid fa-heading"></i>
+                                Event Title
+                            </label>
+                            <input type="text" id="eventTitle" class="form-input" placeholder="Summer Music Festival" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="eventDescription">
+                                <i class="fa-solid fa-align-left"></i>
+                                Description
+                            </label>
+                            <textarea id="eventDescription" class="form-input" rows="4" placeholder="Describe your event..." required></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>
+                                <i class="fa-solid fa-images"></i>
+                                Event Gallery (3-5 Images)
+                            </label>
+                            <div id="galleryContainer" class="gallery-container">
+                                <div class="gallery-item">
+                                    <div class="gallery-upload-box">
+                                        <input type="file" class="gallery-file-input" accept="image/*" required data-index="0" onchange="handleImageUpload(event, 0)">
+                                        <div class="upload-placeholder">
+                                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                                            <span>Upload Image 1</span>
+                                        </div>
+                                        <img class="image-preview" style="display: none;">
+                                        <button type="button" class="btn-clear-image" onclick="clearImage(0)" style="display: none;">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="btn-remove-image" onclick="removeGalleryImage(0)" style="display: none;">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="gallery-item">
+                                    <div class="gallery-upload-box">
+                                        <input type="file" class="gallery-file-input" accept="image/*" required data-index="1" onchange="handleImageUpload(event, 1)">
+                                        <div class="upload-placeholder">
+                                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                                            <span>Upload Image 2</span>
+                                        </div>
+                                        <img class="image-preview" style="display: none;">
+                                        <button type="button" class="btn-clear-image" onclick="clearImage(1)" style="display: none;">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="btn-remove-image" onclick="removeGalleryImage(1)" style="display: none;">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="gallery-item">
+                                    <div class="gallery-upload-box">
+                                        <input type="file" class="gallery-file-input" accept="image/*" required data-index="2" onchange="handleImageUpload(event, 2)">
+                                        <div class="upload-placeholder">
+                                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                                            <span>Upload Image 3</span>
+                                        </div>
+                                        <img class="image-preview" style="display: none;">
+                                        <button type="button" class="btn-clear-image" onclick="clearImage(2)" style="display: none;">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="btn-remove-image" onclick="removeGalleryImage(2)" style="display: none;">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" id="addImageBtn" class="btn-add-image" onclick="addGalleryImage()">
+                                <i class="fa-solid fa-plus"></i>
+                                Add Image (Max 5)
+                            </button>
+                            <span class="gallery-hint">
+                                <i class="fa-solid fa-info-circle"></i>
+                                Upload 3-5 images (JPG, PNG, GIF)
+                            </span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventCategory">
+                                <i class="fa-solid fa-tag"></i>
+                                Category
+                            </label>
+                            <select id="eventCategory" class="form-input" required>
+                                <option value="">Select Category</option>
+                                <option value="sports">Sports</option>
+                                <option value="theater">Theater</option>
+                                <option value="conference">Conference</option>
+                                <option value="comedy">Comedy</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventCity">
+                                <i class="fa-solid fa-city"></i>
+                                City
+                            </label>
+                            <select id="eventCity" class="form-input" required>
+                                <option value="">Select City</option>
+                                <option value="Cairo, EG">Cairo, EG</option>
+                                <option value="New Cairo, EG">New Cairo, EG</option>
+                                <option value="Zamalek, EG">Zamalek, EG</option>
+                                <option value="El jazerah, EG">El jazerah, EG</option>
+                                <option value="Zayed, EG">Zayed, EG</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventVenue">
+                                <i class="fa-solid fa-location-dot"></i>
+                                Venue
+                            </label>
+                            <input type="text" id="eventVenue" class="form-input" placeholder="Grand Arena" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventAddress">
+                                <i class="fa-solid fa-map-marker-alt"></i>
+                                Address
+                            </label>
+                            <input type="text" id="eventAddress" class="form-input" placeholder="123 Main Street" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventStartDate">
+                                <i class="fa-solid fa-calendar-day"></i>
+                                Starts At
+                            </label>
+                            <input type="datetime-local" id="eventStartDate" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventEndDate">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                Ends At
+                            </label>
+                            <input type="datetime-local" id="eventEndDate" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ticketPrice">
+                                <i class="fa-solid fa-ticket"></i>
+                                Ticket Price ($)
+                            </label>
+                            <input type="number" id="ticketPrice" class="form-input" placeholder="50" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipTicketPrice">
+                                <i class="fa-solid fa-crown"></i>
+                                VIP Ticket Price ($)
+                            </label>
+                            <input type="number" id="vipTicketPrice" class="form-input" placeholder="100" min="0" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <!-- Seat Configuration -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totalSeats">
+                                <i class="fa-solid fa-chair"></i>
+                                Total Seats
+                            </label>
+                            <select id="totalSeats" class="form-input" required>
+                                <option value="50">50 Seats</option>
+                                <option value="100" selected>100 Seats</option>
+                                <option value="150">150 Seats</option>
+                                <option value="200">200 Seats</option>
+                                <option value="250">250 Seats</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipSeatsCount">
+                                <i class="fa-solid fa-star"></i>
+                                VIP Seats Count
+                            </label>
+                            <input type="number" id="vipSeatsCount" class="form-input" placeholder="10" min="0" value="10" required>
+                            <small style="color: var(--text-muted); font-size: 0.85rem;">VIP seats will be numbered first (e.g., 1-10)</small>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeCreateEventModal()">Cancel</button>
+                        <button type="submit" class="btn-primary-submit">
+                            <i class="fa-solid fa-check"></i>
+                            Create Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal-backdrop" style="z-index: 10002;">
+        <div class="modal-container" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fa-solid fa-question-circle"></i>
+                    Confirmation
+                </h3>
+                <button class="modal-close" onclick="closeConfirmModal(false)">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage" style="color: var(--text-main); margin-bottom: 20px; font-size: 1.1rem;"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeConfirmModal(false)">Cancel</button>
+                    <button type="button" class="btn-primary-submit" onclick="closeConfirmModal(true)">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col-main">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+                    </div>
+                    <p class="footer-desc">The easiest way to discover and book tickets for the best events in your city. Secure, fast, and reliable.</p>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Resrvetia Events Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Auth Script -->
+    <script src="js/api-service.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    
+    <!-- Dashboard Script -->
+    <script>
+        let galleryImageCount = 3;
+        let editingEventId = null;
+        let lastAgencyEvents = [];
+
+        // Modal Functions
+        function openCreateEventModal() {
+            editingEventId = null;
+            const titleEl = document.querySelector('#createEventModal .modal-title');
+            if (titleEl) {
+                titleEl.innerHTML = `<i class="fa-solid fa-calendar-plus"></i> Create New Event`;
+            }
+
+            const submitBtn = document.querySelector('#createEventForm button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = `<i class="fa-solid fa-check"></i> Create Event`;
+            }
+
+            document.getElementById('createEventModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            galleryImageCount = 3;
+
+            // Create mode: banners required
+            document.querySelectorAll('.gallery-file-input').forEach(i => i.required = true);
+        }
+
+        function closeCreateEventModal() {
+            document.getElementById('createEventModal').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('createEventForm').reset();
+            resetGallery();
+            editingEventId = null;
+        }
+
+        function toDateTimeLocalValue(value) {
+            if (!value) return '';
+            const str = value.toString();
+            // If backend gives "YYYY-MM-DDTHH:mm:ss" (no timezone), keep first 16 chars
+            if (str.includes('T') && str.length >= 16) return str.slice(0, 16);
+            try {
+                const d = new Date(str);
+                if (Number.isNaN(d.getTime())) return '';
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            } catch {
+                return '';
+            }
+        }
+
+        function resetGallery() {
+            const container = document.getElementById('galleryContainer');
+            container.innerHTML = `
+                <div class="gallery-item">
+                    <div class="gallery-upload-box">
+                        <input type="file" class="gallery-file-input" accept="image/*" required data-index="0" onchange="handleImageUpload(event, 0)">
+                        <div class="upload-placeholder">
+                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                            <span>Upload Image 1</span>
+                        </div>
+                        <img class="image-preview" style="display: none;">
+                        <button type="button" class="btn-clear-image" onclick="clearImage(0)" style="display: none;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-remove-image" onclick="removeGalleryImage(0)" style="display: none;">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-upload-box">
+                        <input type="file" class="gallery-file-input" accept="image/*" required data-index="1" onchange="handleImageUpload(event, 1)">
+                        <div class="upload-placeholder">
+                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                            <span>Upload Image 2</span>
+                        </div>
+                        <img class="image-preview" style="display: none;">
+                        <button type="button" class="btn-clear-image" onclick="clearImage(1)" style="display: none;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-remove-image" onclick="removeGalleryImage(1)" style="display: none;">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-upload-box">
+                        <input type="file" class="gallery-file-input" accept="image/*" required data-index="2" onchange="handleImageUpload(event, 2)">
+                        <div class="upload-placeholder">
+                            <i class="fa-solid fa-cloud-upload-alt"></i>
+                            <span>Upload Image 3</span>
+                        </div>
+                        <img class="image-preview" style="display: none;">
+                        <button type="button" class="btn-clear-image" onclick="clearImage(2)" style="display: none;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-remove-image" onclick="removeGalleryImage(2)" style="display: none;">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+            `;
+            galleryImageCount = 3;
+            updateAddImageButton();
+        }
+
+        function handleImageUpload(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select an image file', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Image size should be less than 5MB', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const uploadBox = event.target.closest('.gallery-upload-box');
+                const preview = uploadBox.querySelector('.image-preview');
+                const placeholder = uploadBox.querySelector('.upload-placeholder');
+                const clearBtn = uploadBox.querySelector('.btn-clear-image');
+                
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                preview.style.opacity = '1';
+                preview.style.visibility = 'visible';
+                placeholder.style.display = 'none';
+                clearBtn.style.display = 'flex';
+                uploadBox.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage(index) {
+            const inputs = document.querySelectorAll('.gallery-file-input');
+            const input = inputs[index];
+            const uploadBox = input.closest('.gallery-upload-box');
+            const preview = uploadBox.querySelector('.image-preview');
+            const placeholder = uploadBox.querySelector('.upload-placeholder');
+            const clearBtn = uploadBox.querySelector('.btn-clear-image');
+            
+            // Clear the file input
+            input.value = '';
+            
+            // Reset the UI
+            preview.src = '';
+            preview.style.display = 'none';
+            placeholder.style.display = 'flex';
+            clearBtn.style.display = 'none';
+            uploadBox.classList.remove('has-image');
+        }
+
+        function addGalleryImage() {
+            if (galleryImageCount >= 5) {
+                showNotification('Maximum 5 images allowed', 'error');
+                return;
+            }
+
+            const container = document.getElementById('galleryContainer');
+            const newIndex = galleryImageCount;
+            
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.innerHTML = `
+                <div class="gallery-upload-box">
+                    <input type="file" class="gallery-file-input" accept="image/*" required data-index="${newIndex}" onchange="handleImageUpload(event, ${newIndex})">
+                    <div class="upload-placeholder">
+                        <i class="fa-solid fa-cloud-upload-alt"></i>
+                        <span>Upload Image ${newIndex + 1}</span>
+                    </div>
+                    <img class="image-preview" style="display: none;">
+                    <button type="button" class="btn-clear-image" onclick="clearImage(${newIndex})" style="display: none;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+                <button type="button" class="btn-remove-image" onclick="removeGalleryImage(${newIndex})">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(galleryItem);
+            galleryImageCount++;
+            updateAddImageButton();
+            updateRemoveButtons();
+        }
+
+        function removeGalleryImage(index) {
+            if (galleryImageCount <= 3) {
+                showNotification('Minimum 3 images required', 'error');
+                return;
+            }
+
+            const inputs = document.querySelectorAll('.gallery-file-input');
+            const itemToRemove = inputs[index].closest('.gallery-item');
+            itemToRemove.remove();
+            
+            galleryImageCount--;
+            updateAddImageButton();
+            updateRemoveButtons();
+            reindexGalleryInputs();
+        }
+
+        function reindexGalleryInputs() {
+            const inputs = document.querySelectorAll('.gallery-file-input');
+            inputs.forEach((input, idx) => {
+                input.setAttribute('data-index', idx);
+                input.setAttribute('onchange', `handleImageUpload(event, ${idx})`);
+                const uploadBox = input.closest('.gallery-upload-box');
+                const placeholder = uploadBox.querySelector('.upload-placeholder span');
+                if (placeholder) {
+                    placeholder.textContent = `Upload Image ${idx + 1}`;
+                }
+                const removeBtn = input.closest('.gallery-item').querySelector('.btn-remove-image');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeGalleryImage(${idx})`);
+                }
+                const clearBtn = uploadBox.querySelector('.btn-clear-image');
+                if (clearBtn) {
+                    clearBtn.setAttribute('onclick', `clearImage(${idx})`);
+                }
+            });
+        }
+
+        function updateAddImageButton() {
+            const addBtn = document.getElementById('addImageBtn');
+            if (galleryImageCount >= 5) {
+                addBtn.disabled = true;
+                addBtn.style.opacity = '0.5';
+                addBtn.style.cursor = 'not-allowed';
+            } else {
+                addBtn.disabled = false;
+                addBtn.style.opacity = '1';
+                addBtn.style.cursor = 'pointer';
+            }
+        }
+
+        function updateRemoveButtons() {
+            const removeButtons = document.querySelectorAll('.btn-remove-image');
+            removeButtons.forEach(btn => {
+                if (galleryImageCount > 3) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            let icon = 'fa-info-circle';
+            if (type === 'success') icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-exclamation-circle';
+            
+            notification.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Trigger animation
+            // Use requestAnimationFrame to ensure the class is added after the element is in the DOM
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        let confirmResolve = null;
+
+        function showConfirm(message) {
+            return new Promise((resolve) => {
+                document.getElementById('confirmMessage').textContent = message;
+                document.getElementById('confirmModal').classList.add('active');
+                confirmResolve = resolve;
+            });
+        }
+
+        function closeConfirmModal(result) {
+            document.getElementById('confirmModal').classList.remove('active');
+            if (confirmResolve) {
+                confirmResolve(result);
+                confirmResolve = null;
+            }
+        }
+
+        function handleCreateEvent(event) {
+            event.preventDefault();
+            try {
+                // Validate dates
+                const startDateInput = document.getElementById('eventStartDate');
+                const endDateInput = document.getElementById('eventEndDate');
+                
+                if (!startDateInput.value || !endDateInput.value) {
+                    showNotification('Please select both start and end dates', 'error');
+                    return;
+                }
+
+                const startDateTime = new Date(startDateInput.value);
+                const endDateTime = new Date(endDateInput.value);
+                const now = new Date();
+
+                if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+                    showNotification('Invalid date format', 'error');
+                    return;
+                }
+
+                if (startDateTime < now) {
+                    showNotification('Event start date cannot be in the past', 'error');
+                    return;
+                }
+
+                if (endDateTime <= startDateTime) {
+                    showNotification('Event end date must be after start date', 'error');
+                    return;
+                }
+            
+            // Validate gallery images
+            const galleryInputs = Array.from(document.querySelectorAll('.gallery-file-input'));
+            const selectedFiles = galleryInputs
+                .map(i => (i.files && i.files[0]) ? i.files[0] : null)
+                .filter(Boolean);
+
+            const isEdit = editingEventId !== null;
+            if (!isEdit) {
+                if (selectedFiles.length < 3) {
+                    showNotification('Please upload at least 3 images to the gallery', 'error');
+                    return;
+                }
+
+                if (selectedFiles.length > 5) {
+                    showNotification('Maximum 5 images allowed in the gallery', 'error');
+                    return;
+                }
+            }
+
+            // We upload images after creating/updating the event.
+            submitEventData();
+            } catch (err) {
+                console.error('Create event failed:', err);
+                showNotification('Could not create event. Please ensure all fields and images are filled, then try again.', 'error');
+            }
+        }
+
+        async function submitEventData() {
+            try {
+                const startDate = document.getElementById('eventStartDate').value;
+                const endDate = document.getElementById('eventEndDate').value;
+                
+                // Convert datetime-local values to ISO format properly
+                // The datetime-local input gives us format: "YYYY-MM-DDTHH:MM"
+                // We need to convert this to ISO 8601 format with proper timezone
+                const startDateTime = startDate ? startDate + ':00' : null; // Add seconds
+                const endDateTime = endDate ? endDate + ':00' : null;
+
+                // Prepare event data for backend API
+                const eventData = {
+                    title: document.getElementById('eventTitle').value,
+                    description: document.getElementById('eventDescription').value,
+                    category: document.getElementById('eventCategory').value,
+                    city: document.getElementById('eventCity').value,
+                    venue: document.getElementById('eventVenue').value,
+                    address: document.getElementById('eventAddress').value,
+                    starts_at: startDateTime,
+                    ends_at: endDateTime,
+                    ticket_price: parseFloat(document.getElementById('ticketPrice').value),
+                    vip_ticket_price: parseFloat(document.getElementById('vipTicketPrice').value),
+                    total_seats: parseInt(document.getElementById('totalSeats').value),
+                    vip_seats_count: parseInt(document.getElementById('vipSeatsCount').value)
+                };
+
+                console.log('Creating event:', eventData);
+
+                // Show loading state
+                const submitBtn = document.querySelector('#createEventForm button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+                submitBtn.disabled = true;
+
+                // Create event via API
+                const isEdit = editingEventId !== null;
+                const createdEvent = isEdit
+                    ? await AgencyEventsAPI.updateEvent(editingEventId, eventData)
+                    : await AgencyEventsAPI.createEvent(eventData);
+                console.log('Event created:', createdEvent);
+
+                // Upload banner images (create required; edit optional)
+                const galleryInputs = document.querySelectorAll('.gallery-file-input');
+                let uploadedCount = 0;
+                for (let i = 0; i < galleryInputs.length; i++) {
+                    const input = galleryInputs[i];
+                    if (input.files && input.files[0]) {
+                        try {
+                            await AgencyEventsAPI.uploadBanner(createdEvent.id, input.files[0]);
+                            uploadedCount++;
+                        } catch (error) {
+                            console.error('Failed to upload banner:', error);
+                            showNotification(`Warning: Some images failed to upload`, 'warning');
+                        }
+                    }
+                }
+
+                showNotification(isEdit ? 'Event updated successfully!' : 'Event created successfully!', 'success');
+                
+                // Reset button
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                
+                setTimeout(async () => {
+                    if (!isEdit) {
+                        const confirmed = await showConfirm('Event created successfully! Would you like to view it now?');
+                        if (confirmed) {
+                            // Agencies are blocked from events listing; take them to event details instead.
+                            window.location.href = `event-details.html?id=${createdEvent.id}`;
+                            return;
+                        }
+                    }
+                    
+                    closeCreateEventModal();
+                    
+                    // Reload agency events to show the new one
+                    try {
+                        await loadAgencyEventsAndRender();
+                    } catch (error) {
+                        console.error('Failed to reload events:', error);
+                    }
+                    
+                    // Reset form and gallery
+                    document.getElementById('createEventForm').reset();
+                    resetGallery();
+                }, 1000);
+
+            } catch (err) {
+                console.error('Submit event failed:', err);
+                showNotification('Failed to create event: ' + err.message, 'error');
+            }
+        }
+
+        async function openEditEventModal(eventId) {
+            const ev = (lastAgencyEvents || []).find(e => String(e.id) === String(eventId));
+            if (!ev) {
+                showNotification('Event not found. Please refresh and try again.', 'error');
+                return;
+            }
+
+            editingEventId = ev.id;
+
+            // Switch modal title/button
+            const titleEl = document.querySelector('#createEventModal .modal-title');
+            if (titleEl) {
+                titleEl.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit Event`;
+            }
+            const submitBtn = document.querySelector('#createEventForm button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = `<i class="fa-solid fa-save"></i> Save Changes`;
+            }
+
+            // Edit mode: banners optional
+            document.querySelectorAll('.gallery-file-input').forEach(i => i.required = false);
+
+            // Fill form fields
+            document.getElementById('eventTitle').value = ev.title || '';
+            document.getElementById('eventDescription').value = ev.description || '';
+            document.getElementById('eventCategory').value = ev.category || 'other';
+            // Set city in dropdown; if not present, add it dynamically
+            const citySelect = document.getElementById('eventCity');
+            const cityVal = ev.city || 'Cairo, EG';
+            const hasCityOption = Array.from(citySelect.options).some(o => o.value === cityVal);
+            if (!hasCityOption) {
+                const opt = document.createElement('option');
+                opt.value = cityVal;
+                opt.textContent = cityVal;
+                citySelect.appendChild(opt);
+            }
+            citySelect.value = cityVal;
+            document.getElementById('eventVenue').value = ev.venue || '';
+            document.getElementById('eventAddress').value = ev.address || '';
+            document.getElementById('eventStartDate').value = toDateTimeLocalValue(ev.starts_at || ev.startsAt || ev.dateString);
+            document.getElementById('eventEndDate').value = toDateTimeLocalValue(ev.ends_at || ev.endsAt);
+            document.getElementById('ticketPrice').value = ev.ticket_price ?? ev.ticketPrice ?? '';
+            document.getElementById('vipTicketPrice').value = ev.vip_ticket_price ?? ev.vipTicketPrice ?? '';
+            document.getElementById('totalSeats').value = String(ev.total_seats ?? ev.totalSeats ?? '100');
+            document.getElementById('vipSeatsCount').value = String(ev.vip_seats_count ?? ev.vipSeatsCount ?? '10');
+
+            document.getElementById('createEventModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        async function loadAgencyEventsAndRender() {
+            const response = await AgencyEventsAPI.listMyEvents(1, 100);
+            const agencyEvents = response.items || [];
+            lastAgencyEvents = agencyEvents;
+
+            // Per-event analytics for cards
+            let perEvent = [];
+            try {
+                perEvent = await AgencyEventsAPI.listEventsAnalytics();
+            } catch (e) {
+                perEvent = [];
+            }
+            const metricsById = new Map((perEvent || []).map(m => [String(m.event_id), m]));
+
+            const merged = agencyEvents.map(ev => {
+                const m = metricsById.get(String(ev.id));
+                const ticketsSold = m ? Number(m.tickets_sold || 0) : 0;
+                const revenue = m ? Number(m.revenue || 0) : 0;
+                return {
+                    ...ev,
+                    bookedTickets: ticketsSold,
+                    attendees: ticketsSold,
+                    revenue: revenue,
+                };
+            });
+
+            updateStatsWithEvents(merged);
+            await refreshAgencyAnalytics();
+            renderEvents(merged);
+        }
+
+        function formatMoney(amount) {
+            const num = Number(amount);
+            if (!Number.isFinite(num)) return '$0.00';
+            return `$${num.toFixed(2)}`;
+        }
+
+        function updateStatsWithEvents(agencyEvents) {
+            const totalEvents = Array.isArray(agencyEvents) ? agencyEvents.length : 0;
+            document.getElementById('totalEvents').textContent = totalEvents;
+        }
+
+        async function refreshAgencyAnalytics() {
+            try {
+                const analytics = await AgencyEventsAPI.getAnalytics();
+                if (!analytics) return;
+
+                document.getElementById('totalAttendees').textContent = analytics.total_tickets_sold ?? 0;
+                document.getElementById('totalRevenue').textContent = formatMoney(analytics.total_revenue ?? 0);
+            } catch (e) {
+                console.error('Failed to load analytics:', e);
+            }
+        }
+
+        // Set minimum datetime to current time
+        function setMinDateTime() {
+            const now = new Date();
+            // Add 1 hour to current time to give some buffer
+            now.setHours(now.getHours() + 1);
+            const minDateTime = now.toISOString().slice(0, 16);
+            
+            const startInput = document.getElementById('eventStartDate');
+            const endInput = document.getElementById('eventEndDate');
+            
+            if (startInput) startInput.min = minDateTime;
+            if (endInput) endInput.min = minDateTime;
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = getLoggedInUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name;
+                
+                // Set minimum datetime for event dates
+                setMinDateTime();
+                
+                // Load agency events from API
+                try {
+                    await loadAgencyEventsAndRender();
+                } catch (error) {
+                    console.error('Failed to load agency events:', error);
+                    renderEvents([]);
+                }
+            }
+        });
+
+        function renderEvents(events) {
+            const container = document.getElementById('eventsList');
+
+            if (!events || events.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state-modern">
+                        <div class="empty-illustration">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <h3>No events yet</h3>
+                        <p>Create your first event to start attracting attendees and building your portfolio!</p>
+                        <button class="btn-empty-state" onclick="openCreateEventModal()">
+                            <i class="fa-solid fa-plus"></i>
+                            Create Your First Event
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = events.map(event => {
+                const dateVal = event.dateString || event.date || event.startsAt || event.starts_at || event.dateISO;
+                const dateLabel = dateVal ? new Date(dateVal).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD';
+                return `
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <div class="ticket-date">
+                            <i class="fa-solid fa-calendar"></i>
+                            ${dateLabel}
+                        </div>
+                        <div class="ticket-badge" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.3);">Active</div>
+                    </div>
+                    <h3 class="ticket-title">${event.title}</h3>
+                    <div class="ticket-details">
+                        <div class="ticket-info">
+                            <i class="fa-solid fa-users"></i>
+                            <span>${event.attendees || event.bookedTickets || 0} Attendees</span>
+                        </div>
+                        <div class="ticket-info">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>${event.venue || 'TBD'}</span>
+                        </div>
+                        <div class="ticket-info">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <span>$${event.revenue || event.price || 0} Revenue</span>
+                        </div>
+                    </div>
+                    <div class="ticket-actions">
+                        <button class="btn-ticket-view" onclick="window.open('event-details.html?id=${event.id}', '_blank')" title="View Event">
+                            <i class="fa-solid fa-eye"></i>
+                            View Event
+                        </button>
+                        <button class="btn-ticket-view" onclick="openEditEventModal(${event.id})">
+                            <i class="fa-solid fa-edit"></i>
+                            Edit Event
+                        </button>
+                        <button class="btn-ticket-download" onclick="window.location.href='reviews.html?id=${event.id}'" title="Reviews">
+                            <i class="fa-solid fa-comments"></i>
+                        </button>
+                        <button class="btn-ticket-download" style="background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #ef4444;" onclick="deleteEvent('${event.id}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteEvent(eventId) {
+            const confirmed = await showConfirm('Are you sure you want to delete this event?');
+            if (!confirmed) return;
+
+            try {
+                // Convert to number if string
+                const numId = typeof eventId === 'string' ? parseInt(eventId) : eventId;
+
+                const currentUser = getLoggedInUser();
+                if (!currentUser) {
+                    showNotification('Please sign in again.', 'error');
+                    return;
+                }
+
+                // Delete from backend DB
+                await AgencyEventsAPI.deleteEvent(numId);
+
+                showNotification('Event deleted successfully!', 'success');
+
+                // Reload agency events from API and re-render
+                try {
+                    const response = await AgencyEventsAPI.listMyEvents(1, 100);
+                    const agencyEvents = response.items || [];
+                    updateStatsWithEvents(agencyEvents);
+                    await refreshAgencyAnalytics();
+                    renderEvents(agencyEvents);
+                } catch (error) {
+                    console.error('Failed to reload events after delete:', error);
+                    // As a fallback, reload the page (ensures state matches DB)
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+                showNotification('Failed to delete event. Please try again.', 'error');
+            }
+        }
+    </script>
+
+    <style>
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-container {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 24px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(50px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-backdrop.active .modal-container {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 30px 30px 20px;
+            border-bottom: 1px solid rgba(236, 72, 153, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98));
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-title i {
+            color: var(--brand-primary);
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: var(--brand-primary);
+            width: 16px;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-white);
+            font-size: 1rem;
+            font-family: var(--font-main);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            background: #172031;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        select.form-input {
+            cursor: pointer;
+        }
+
+        input[type="datetime-local"].form-input {
+            color-scheme: dark;
+        }
+
+        /* Gallery Section */
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gallery-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+        }
+
+        .gallery-item .form-input {
+            flex: 1;
+        }
+
+        .btn-remove-image {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-remove-image:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: scale(1.05);
+        }
+
+        .btn-add-image {
+            background: rgba(236, 72, 153, 0.1);
+            border: 2px dashed rgba(236, 72, 153, 0.3);
+            color: var(--brand-primary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-add-image:hover:not(:disabled) {
+            background: rgba(236, 72, 153, 0.2);
+            border-color: rgba(236, 72, 153, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-add-image:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .gallery-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(236, 72, 153, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(236, 72, 153, 0.1);
+        }
+
+        .gallery-hint i {
+            color: var(--brand-primary);
+        }
+
+        /* Gallery Upload Box Styles */
+        .gallery-upload-box {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(236, 72, 153, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-upload-box:hover {
+            border-color: rgba(236, 72, 153, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .gallery-file-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .upload-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .upload-placeholder i {
+            font-size: 2.5rem;
+            color: var(--brand-primary);
+            opacity: 0.6;
+        }
+
+        .upload-placeholder span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .gallery-upload-box:hover .upload-placeholder i {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .image-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            z-index: 1;
+        }
+
+        .gallery-upload-box.has-image .image-preview {
+            display: block;
+        }
+
+        .gallery-upload-box.has-image .upload-placeholder {
+            display: none;
+        }
+
+        .gallery-upload-box.has-image {
+            border-color: rgba(34, 197, 94, 0.5);
+            border-style: solid;
+        }
+
+        .gallery-upload-box.has-image:hover {
+            border-color: rgba(34, 197, 94, 0.7);
+        }
+
+        /* Clear Image Button */
+        .btn-clear-image {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(239, 68, 68, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-clear-image:hover {
+            background: rgba(239, 68, 68, 1);
+            border-color: rgba(239, 68, 68, 0.8);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-clear-image i {
+            font-size: 0.9rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(236, 72, 153, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            color: var(--text-white);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+
+        .btn-primary-submit {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary));
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-container {
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Agency-specific adjustments */
+        .welcome-badge i {
+            color: var(--brand-primary);
+        }
+        
+        /* Ticket Card Styles */
+        .ticket-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6));
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--brand-primary), var(--brand-dark));
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(236, 72, 153, 0.5);
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.2);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .ticket-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .ticket-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .ticket-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .ticket-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ticket-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .ticket-info i {
+            color: var(--brand-primary);
+            width: 18px;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-ticket-view {
+            flex: 1;
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ticket-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn-ticket-download {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-white);
+            border: 1px solid var(--border-light);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ticket-download:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+
+        /* Notification Styles */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(8px);
+            pointer-events: auto;
+            font-weight: 500;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            /* Keep it pink/white as requested, but maybe slightly different or just same theme */
+            /* If user wants "pink and white", I'll stick to the brand theme even for errors, 
+               relying on the icon and text to convey the error. */
+            background: white;
+            color: var(--brand-primary);
+            border: 2px solid var(--brand-primary);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #065f46, #10b981);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification i {
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .notification.error i {
+            color: var(--brand-primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .dashboard-hero {
+                padding: 30px 20px;
+            }
+
+            .section-header-flex {
+                flex-direction: column;
+            }
+
+            .tickets-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        // Highlight updated fields when page loads
+        function highlightUpdatedFields() {
+            const updates = localStorage.getItem('profileUpdates');
+            if (updates) {
+                const updateList = JSON.parse(updates);
+                
+                updateList.forEach(update => {
+                    if (update === 'username') {
+                        const userNameEl = document.querySelector('.user-name');
+                        if (userNameEl) {
+                            userNameEl.classList.add('highlight-updated');
+                        }
+                    } else if (update === 'photo') {
+                        const userAvatarEl = document.querySelector('.user-avatar');
+                        if (userAvatarEl) {
+                            userAvatarEl.classList.add('highlight-updated');
+                        }
+                    }
+                });
+                
+                localStorage.removeItem('profileUpdates');
+            }
+        }
+
+        window.addEventListener('load', highlightUpdatedFields);
+    </script>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details | Resrvetia</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Confetti Library for the Animation -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --brand-primary: #ec4899;
+            --brand-dark: #db2777;
+            --brand-glow: rgba(236, 72, 153, 0.5);
+            --bg-body: #000000;
+            --bg-card: #0f172a;
+            --bg-card-hover: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --vip-gold: #fbbf24;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-lg: 16px;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            background-image: radial-gradient(circle at 50% 0%, #831843, #000000 60%);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Nav */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            padding: 20px 0;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; font-weight: 700; color: var(--text-white); text-decoration: none; }
+        .logo-icon { width: 32px; height: 32px; background: var(--brand-dark); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-link { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 500; transition: color 0.3s; }
+        .nav-link:hover { color: var(--brand-primary); }
+
+        /* Hero */
+        .hero-section {
+            height: 60vh; min-height: 400px; position: relative;
+            background-size: cover; background-position: center; padding-top: 80px;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 60%, #000000 100%);
+        }
+        .hero-content { position: absolute; bottom: 60px; left: 0; width: 100%; z-index: 10; }
+        .event-badge {
+            background: var(--brand-primary); color: white; padding: 5px 12px;
+            border-radius: 20px; font-weight: 600; font-size: 0.85rem; display: inline-block; margin-bottom: 15px;
+        }
+        .hero-title { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1.1; margin-bottom: 15px; }
+        .hero-meta { display: flex; gap: 20px; color: var(--text-main); font-size: 1.1rem; flex-wrap: wrap; }
+        .meta-item { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-light); }
+
+        /* Content */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 40px;
+            padding: 40px 0 80px;
+            position: relative;
+            z-index: 20;
+        }
+        .section-title { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 20px; border-left: 4px solid var(--brand-primary); padding-left: 15px; }
+        .description-text { line-height: 1.8; color: var(--text-muted); margin-bottom: 40px; }
+
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 40px;
+        }
+        .gallery-item { aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-light); }
+        .gallery-img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Booking Card */
+        .booking-card {
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 20px; padding: 30px;
+            position: sticky; top: 100px;
+        }
+        .price-amount { font-size: 2rem; font-weight: 700; color: white; }
+        .btn-book {
+            width: 100%; background: var(--brand-dark); color: white; padding: 16px;
+            border-radius: 12px; font-weight: 700; font-size: 1.1rem; border: none; cursor: pointer;
+            transition: transform 0.2s; margin-top: 20px;
+        }
+        .btn-book:hover { transform: translateY(-2px); background: var(--brand-primary); }
+
+        /* Seat Modal */
+        .seat-modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(8px); z-index: 10000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .seat-modal-backdrop.active { display: flex; opacity: 1; }
+
+        .seat-modal-container {
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 20px; max-width: 900px; width: 100%; max-height: 90vh;
+            overflow-y: auto; display: flex; flex-direction: column;
+            transform: translateY(50px); transition: transform 0.3s ease;
+        }
+        .seat-modal-backdrop.active .seat-modal-container { transform: translateY(0); }
+
+        .seat-modal-header {
+            padding: 20px 30px; border-bottom: 1px solid var(--border-light);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-card); position: sticky; top: 0; z-index: 10;
+        }
+
+        .seat-modal-body { padding: 30px; }
+
+        .stage {
+            background: linear-gradient(to bottom, rgba(236, 72, 153, 0.2), transparent);
+            border-top: 2px solid var(--brand-primary);
+            border-radius: 50% 50% 0 0; width: 60%; margin: 0 auto 40px;
+            text-align: center; padding: 20px; color: var(--brand-primary); letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .seat-legend {
+            display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
+        .legend-seat { width: 20px; height: 20px; border-radius: 4px; }
+
+        .l-avail { background: #334155; border: 1px solid #475569; }
+        .l-sel { background: var(--brand-primary); }
+        .l-occ { background: #0f172a; border: 1px solid #1e293b; opacity: 0.5; }
+        .l-vip { background: rgba(251, 191, 36, 0.15); border: 1px solid var(--vip-gold); }
+
+        .seats-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; align-items: center; }
+        .seat-row { display: flex; gap: 6px; align-items: center; }
+        .row-label { width: 25px; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; }
+
+        /* Seats */
+        .seat {
+            width: 36px; height: 36px;
+            border-radius: 6px 6px 2px 2px;
+            background-color: #334155;
+            border: 2px solid #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .seat:hover:not(.occupied) {
+            transform: scale(1.15);
+            border-color: white;
+            z-index: 2;
+        }
+
+        .seat.vip {
+            background-color: rgba(251, 191, 36, 0.15);
+            border-color: var(--vip-gold);
+            box-shadow: inset 0 0 5px rgba(251, 191, 36, 0.3);
+        }
+
+        .seat.occupied {
+            background-color: #1e293b;
+            border-color: #334155;
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .seat.occupied::after {
+            content: '×';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #64748b;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        /* SELECTED STATE */
+        .seat.selected {
+            background-color: var(--brand-primary) !important;
+            border-color: var(--brand-primary) !important;
+            box-shadow: 0 0 15px var(--brand-glow) !important;
+            transform: scale(1.15) !important;
+            z-index: 5;
+            animation: pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        .seat-footer {
+            background: var(--bg-card-hover); padding: 20px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center; gap: 20px;
+        }
+        .btn-confirm {
+            background: var(--brand-dark); color: white; padding: 14px 30px;
+            border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-size: 1rem;
+        }
+        .btn-confirm:hover:not(:disabled) {
+            background: var(--brand-primary);
+            transform: translateY(-2px);
+        }
+        .btn-confirm:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
+
+        /* --- NEW: Success Overlay Animations --- */
+        .success-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 20000;
+            display: none;
+            justify-content: center; align-items: center;
+        }
+        .success-overlay.active { display: flex; animation: fadeIn 0.3s forwards; }
+
+        .success-card {
+            background: #1e293b;
+            padding: 40px; border-radius: 24px;
+            text-align: center; border: 1px solid var(--brand-primary);
+            box-shadow: 0 0 50px rgba(236, 72, 153, 0.3);
+            transform: scale(0.8); opacity: 0;
+            max-width: 400px; width: 90%;
+        }
+        .success-overlay.active .success-card {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s forwards;
+        }
+
+        .check-icon {
+            width: 80px; height: 80px; background: var(--success);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: white; margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+        .success-details {
+            background: rgba(0,0,0,0.2);
+            padding: 15px; border-radius: 12px; margin: 20px 0;
+        }
+        .success-btn {
+            background: var(--brand-primary); color: white; border: none;
+            padding: 12px 30px; border-radius: 30px; font-weight: 700; font-size: 1rem;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .success-btn:hover { transform: scale(1.05); }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1.15); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        @media (max-width: 900px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .booking-card { position: static; }
+            .seat { width: 28px; height: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-gem"></i></div>
+                <span>Resrvetia</span>
+            </a>
+            <div class="nav-links">
+                <a href="#" class="nav-link">Events</a>
+                <a href="#" class="nav-link">Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content">
+                <span class="event-badge">Music</span>
+                <h1 class="hero-title">Loading...</h1>
+                <div class="hero-meta"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="container content-grid">
+        <div class="details-column">
+            <h2 class="section-title">About</h2>
+            <div class="description-text"><p>Loading...</p></div>
+            
+            <h2 class="section-title">Gallery</h2>
+            <div class="gallery-grid"></div>
+        </div>
+
+        <div class="booking-column">
+            <div class="booking-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom:20px;">
+                    <span style="color:var(--text-muted);">Starting from</span>
+                    <span class="price-amount" id="displayPrice">$0</span>
+                </div>
+                <button class="btn-book" onclick="openSeatModal()">Select Seats</button>
+                <div style="text-align: center; margin-top:15px; font-size: 0.8rem; color:var(--text-muted);">
+                    <i class="fa-solid fa-chair"></i> Choose your favorite spot
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seat Modal -->
+    <div id="seatModal" class="seat-modal-backdrop">
+        <div class="seat-modal-container">
+            <div class="seat-modal-header">
+                <h2 style="color:white; font-size:1.5rem;">Select Seats</h2>
+                <button onclick="closeSeatModal()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="seat-modal-body">
+                <div class="stage">STAGE</div>
+
+                <div class="seat-legend">
+                    <div class="legend-item">
+                        <div class="legend-seat l-avail"></div>
+                        <span>Standard <span id="legStdPrice" style="color:var(--text-muted)"></span></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-seat l-vip"></div>
+                        <span>VIP <span id="legVipPrice" style="color:var(--vip-gold)"></span></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-seat l-sel"></div>
+                        <span>Selected</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-seat l-occ"></div>
+                        <span>Occupied</span>
+                    </div>
+                </div>
+
+                <div class="seats-container" id="seatsGrid"></div>
+
+                <div class="seat-footer">
+                    <div>
+                        <div style="color:var(--text-muted); font-size:0.9rem; margin-bottom:5px;">Selected Seats</div>
+                        <div style="color:white; font-size:1.1rem; font-weight:600; margin-bottom:8px;" id="selectedSeatCount">None</div>
+                        <div style="color:var(--brand-primary); font-size:1.8rem; font-weight:700;" id="totalSeatPrice">$0</div>
+                    </div>
+                    <button class="btn-confirm" id="btnConfirm" disabled onclick="confirmBooking()">
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS ANIMATION OVERLAY -->
+    <div id="successOverlay" class="success-overlay">
+        <div class="success-card">
+            <div class="check-icon"><i class="fa-solid fa-check"></i></div>
+            <h2 style="color:white; margin-bottom:10px;">Booking Confirmed!</h2>
+            <p style="color:var(--text-muted);">Get ready for an amazing experience.</p>
+            
+            <div class="success-details">
+                <div style="color:white; font-weight:bold; font-size:1.2rem;" id="successEventName">Event Name</div>
+                <div style="color:var(--brand-primary); margin-top:5px;" id="successSeats">Seats: A1, A2</div>
+            </div>
+            
+            <button class="success-btn" onclick="closeSuccess()">View My Tickets</button>
+        </div>
+    </div>
+
+    <script>
+        const VIP_ROWS = ['A', 'I', 'J'];
+        const VIP_SURCHARGE = 50;
+        let currentEvent = null;
+        let selectedSeats = [];
+
+        const DEMO_EVENT = {
+            id: 999,
+            title: "Summer Music Festival",
+            dateString: "2025-07-15",
+            price: 100,
+            venue: "Grand Arena",
+            city: "New York",
+            description: "Join us for the biggest musical event of the summer! Featuring top artists from around the globe, immersive light shows, and an unforgettable atmosphere. Secure your VIP spots now for the best view in the house.",
+            galleryImages: ["https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=1000", "https://images.unsplash.com/photo-1459749411177-0473ef7161a8?auto=format&fit=crop&w=1000", "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=1000"]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get('id');
+            // Mock data fetch
+            const allEvents = JSON.parse(localStorage.getItem('allEvents') || '[]');
+            currentEvent = allEvents.find(e => e.id == eventId) || DEMO_EVENT;
+            renderPage();
+        });
+
+        function renderPage() {
+            document.title = currentEvent.title + " | Resrvetia";
+            document.querySelector('.hero-title').textContent = currentEvent.title;
+            document.querySelector('.hero-section').style.backgroundImage = `url('${currentEvent.galleryImages[0]}')`;
+            document.querySelector('.description-text p').textContent = currentEvent.description;
+            document.getElementById('displayPrice').textContent = `$${currentEvent.price}`;
+
+            const galleryHTML = currentEvent.galleryImages.map(img => 
+                `<div class="gallery-item"><img src="${img}" class="gallery-img"></div>`
+            ).join('');
+            document.querySelector('.gallery-grid').innerHTML = galleryHTML || '<p style="color:gray">No images</p>';
+        }
+
+        function openSeatModal() {
+            document.getElementById('seatModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('legStdPrice').textContent = `($${currentEvent.price})`;
+            document.getElementById('legVipPrice').textContent = `($${currentEvent.price + VIP_SURCHARGE})`;
+            
+            selectedSeats = [];
+            renderSeats();
+            updateSummary();
+        }
+
+        function closeSeatModal() {
+            document.getElementById('seatModal').classList.remove('active');
+            document.body.style.overflow = '';
+            selectedSeats = [];
+        }
+
+        function renderSeats() {
+            const grid = document.getElementById('seatsGrid');
+            grid.innerHTML = '';
+
+            const rows = ['A','B','C','D','E','F','G','H','I','J'];
+            const seatsPerRow = 10;
+
+            rows.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'seat-row';
+
+                const leftLabel = document.createElement('div');
+                leftLabel.className = 'row-label';
+                leftLabel.textContent = row;
+                rowDiv.appendChild(leftLabel);
+
+                for (let i = 1; i <= seatsPerRow; i++) {
+                    const seatId = `${row}${i}`;
+                    const isVip = VIP_ROWS.includes(row);
+                    // Mock occupied logic: pseudo-random pattern
+                    const isOccupied = (seatId.charCodeAt(0) + i) % 7 === 0;
+
+                    const seatDiv = document.createElement('div');
+                    seatDiv.className = 'seat';
+                    
+                    if (isVip) seatDiv.classList.add('vip');
+                    if (isOccupied) seatDiv.classList.add('occupied');
+
+                    seatDiv.dataset.id = seatId;
+                    seatDiv.dataset.price = isVip ? (currentEvent.price + VIP_SURCHARGE) : currentEvent.price;
+
+                    if (!isOccupied) {
+                        seatDiv.onclick = function() { toggleSeat(this); };
+                        seatDiv.title = `Seat ${seatId} - $${seatDiv.dataset.price}`;
+                    } else {
+                        seatDiv.title = `Seat ${seatId} (Occupied)`;
+                    }
+
+                    rowDiv.appendChild(seatDiv);
+                }
+
+                const rightLabel = document.createElement('div');
+                rightLabel.className = 'row-label';
+                rightLabel.textContent = row;
+                rowDiv.appendChild(rightLabel);
+
+                grid.appendChild(rowDiv);
+            });
+        }
+
+        function toggleSeat(element) {
+            const id = element.dataset.id;
+            const price = parseInt(element.dataset.price, 10);
+
+            const existingIndex = selectedSeats.findIndex(s => s.id === id);
+
+            if (existingIndex !== -1) {
+                selectedSeats.splice(existingIndex, 1);
+                element.classList.remove('selected');
+            } else {
+                if (selectedSeats.length >= 6) {
+                    showNotification('You can only select up to 6 seats.');
+                    return;
+                }
+                selectedSeats.push({ id, price });
+                element.classList.add('selected');
+            }
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+            
+            document.getElementById('totalSeatPrice').textContent = `$${total}`;
+            document.getElementById('selectedSeatCount').textContent =
+                selectedSeats.length ? selectedSeats.map(s => s.id).join(', ') : 'None';
+            
+            document.getElementById('btnConfirm').disabled = selectedSeats.length === 0;
+        }
+
+        function confirmBooking() {
+            // 1. Get Data ready
+            const seatList = selectedSeats.map(s => s.id).join(', ');
+            document.getElementById('successEventName').textContent = currentEvent.title;
+            document.getElementById('successSeats').textContent = "Seats: " + seatList;
+
+            // 2. Close Modal smoothly
+            closeSeatModal();
+
+            // 3. Show Success Overlay
+            setTimeout(() => {
+                document.getElementById('successOverlay').classList.add('active');
+                
+                // 4. FIRE THE CONFETTI!
+                triggerConfetti();
+            }, 300);
+        }
+
+        function closeSuccess() {
+            document.getElementById('successOverlay').classList.remove('active');
+        }
+
+        // --- Fantastic Confetti Effect ---
+        function triggerConfetti() {
+            // Burst 1
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ec4899', '#db2777', '#fbbf24', '#ffffff']
+            });
+
+            // Burst 2 (Delayed)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ec4899', '#fbbf24']
+                });
+                confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ec4899', '#fbbf24']
+                });
+            }, 200);
+        }
+    </script>
+</body>
+</html>

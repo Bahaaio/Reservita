@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write a Review | Resrvetia Events</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body onload="initializeUserNavbar();">
+  <nav class="navbar">
+    <div class="container nav-content">
+      <a href="index.html" class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-gem"></i></div>
+        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="events.html" class="nav-link">Events</a>
+        <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+        <a href="About.html" class="nav-link">About Us</a>
+      </div>
+      <div id="userInfo"></div>
+    </div>
+  </nav>
+
+  <main class="dashboard-main">
+    <div class="container" style="padding-top: 90px; padding-bottom: 60px;">
+      <section class="dashboard-hero" style="padding: 24px;">
+        <div class="hero-content" style="gap: 16px;">
+          <div class="hero-text">
+            <div class="welcome-badge">
+              <i class="fa-solid fa-comment-dots"></i>
+              <span>Review</span>
+            </div>
+            <h1 class="hero-title" id="eventTitle">Write a Review</h1>
+            <p class="hero-description">Share your thoughts about this event. Your review helps others decide.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tickets-section">
+        <div class="section-header-flex">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-pen"></i> Your Comment</h2>
+            <p class="section-subtitle">Add your rating and comment below</p>
+          </div>
+        </div>
+
+        <div class="profile-card" style="max-width: 900px; margin: 0;">
+          <form id="reviewForm" onsubmit="saveReview(event)" style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <label style="color:white; font-weight:600;">Rating:</label>
+              <div id="starRating" class="star-rating"></div>
+            </div>
+            <div>
+              <label class="form-label">Comment</label>
+              <textarea id="commentInput" class="form-input" rows="4" placeholder="Tell us about your experience..." required></textarea>
+              <div class="form-hint">Be respectful and constructive. Max 500 characters.</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="submit" class="btn-primary">Submit Review</button>
+              <a href="events.html" class="btn-secondary">Back to Events</a>
+            </div>
+          </form>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <div class="section-header-flex">
+            <div>
+              <h2 class="section-title"><i class="fa-solid fa-comments"></i> Recent Reviews</h2>
+              <p class="section-subtitle">Latest comments from attendees</p>
+            </div>
+          </div>
+          <div id="reviewsList" class="reviews-list"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="copyright">&copy; 2025 Resrvetia Events Inc. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="js/api-service.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script>
+    function getEventId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    function renderStars(selected = 0) {
+      const container = document.getElementById('starRating');
+      container.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'star-btn';
+        btn.innerHTML = `<i class="${i <= selected ? 'fa-solid fa-star' : 'fa-regular fa-star'}"></i>`;
+        btn.title = `${i} star${i>1?'s':''}`;
+        btn.onclick = () => {
+          renderStars(i);
+          container.setAttribute('data-value', i);
+        };
+        container.appendChild(btn);
+      }
+    }
+
+    async function loadEventTitle() {
+      const eventId = Number(getEventId());
+      try {
+        const event = await EventsAPI.getEvent(eventId);
+        document.getElementById('eventTitle').textContent = event.title;
+      } catch (error) {
+        console.error('Failed to load event:', error);
+        document.getElementById('eventTitle').textContent = 'Write a Review';
+      }
+    }
+
+    async function saveReview(e) {
+      e.preventDefault();
+      const eventId = Number(getEventId());
+      const rating = Number(document.getElementById('starRating').getAttribute('data-value')||0);
+      const comment = document.getElementById('commentInput').value.trim();
+      
+      if (!rating) {
+        showToast('Please select a rating');
+        return;
+      }
+      if (!comment) {
+        showToast('Please write a comment');
+        return;
+      }
+
+      try {
+        // Get user's tickets to check if they attended this event
+        const tickets = await TicketsAPI.listMyTickets();
+        const hasTicket = tickets.some(ticket => ticket.event_id === eventId);
+        
+        if (!hasTicket) {
+          showToast('You must have a ticket for this event to write a review');
+          return;
+        }
+
+        // Submit review via API
+        // Note: You'll need to get the ticket ID for the review
+        const eventTicket = tickets.find(ticket => ticket.event_id === eventId);
+        await ReviewsAPI.createReview(eventTicket.id, rating, comment);
+
+        document.getElementById('reviewForm').reset();
+        document.getElementById('starRating').setAttribute('data-value', '0');
+        renderStars(0);
+        loadReviews();
+        showToast('Review submitted successfully');
+      } catch (error) {
+        console.error('Failed to submit review:', error);
+        showToast('Failed to submit review: ' + error.message);
+      }
+    }
+
+    function deleteReview(reviewId) {
+      const allReviews = JSON.parse(localStorage.getItem('allReviews')||'[]');
+      const updated = allReviews.filter(r => r.id !== reviewId);
+      localStorage.setItem('allReviews', JSON.stringify(updated));
+      loadReviews();
+      showToast('Review removed');
+    }
+
+    async function loadReviews() {
+      const eventId = Number(getEventId());
+      const list = document.getElementById('reviewsList');
+      
+      try {
+        const response = await ReviewsAPI.listEventReviews(eventId, 1, 100);
+        // Handle both paginated response (items) and potential legacy format (reviews)
+        const reviews = response.items || response.reviews || [];
+        console.log('Reviews loaded:', reviews, 'Total:', response.total);
+        
+        if (reviews.length === 0) {
+          list.innerHTML = `<div class="empty-state-modern"><h3>No reviews yet</h3><p>Be the first to share your thoughts.</p></div>`;
+          return;
+        }
+        
+        // Load likes from localStorage
+        const likes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+        const currentUser = getLoggedInUser();
+        
+        list.innerHTML = reviews.map(review => {
+          const reviewLikes = likes[review.id] || { likes: 0, dislikes: 0 };
+          const netScore = reviewLikes.likes - reviewLikes.dislikes;
+          const userLikeStatus = localStorage.getItem(`review_${review.id}_liked`); // 'like', 'dislike', or null
+          
+          return `
+            <div class="review-card">
+              <div class="review-header">
+                <div class="review-user"><i class="fa-solid fa-user"></i> ${review.user_name}</div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="review-rating">${'⭐'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div>
+                </div>
+              </div>
+              <div class="review-comment">${review.comment || 'No comment provided.'}</div>
+              <div class="review-date">${new Date(review.created_at).toLocaleString()}</div>
+              
+              <div class="review-actions" style="display:flex; align-items:center; gap:15px; margin-top:15px; padding-top:15px; border-top:1px solid var(--border-light);">
+                <button class="like-btn ${userLikeStatus === 'like' ? 'active' : ''}" onclick="handleReviewLike(${review.id})" style="
+                  display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--border-light); 
+                  background:${userLikeStatus === 'like' ? 'var(--brand-primary)' : 'transparent'}; 
+                  color:${userLikeStatus === 'like' ? '#fff' : 'var(--text-white)'}; 
+                  border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s;
+                  border-color:${userLikeStatus === 'like' ? 'var(--brand-primary)' : 'var(--border-light)'};
+                ">
+                  <i class="fa-solid fa-thumbs-up"></i>
+                  <span>${reviewLikes.likes}</span>
+                </button>
+                
+                <button class="dislike-btn ${userLikeStatus === 'dislike' ? 'active' : ''}" onclick="handleReviewDislike(${review.id})" style="
+                  display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--border-light); 
+                  background:${userLikeStatus === 'dislike' ? '#dc3545' : 'transparent'}; 
+                  color:${userLikeStatus === 'dislike' ? '#fff' : 'var(--text-white)'}; 
+                  border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s;
+                  border-color:${userLikeStatus === 'dislike' ? '#dc3545' : 'var(--border-light)'};
+                ">
+                  <i class="fa-solid fa-thumbs-down"></i>
+                  <span>${reviewLikes.dislikes}</span>
+                </button>
+                
+                <span style="color: var(--text-muted); font-size: 0.85rem; margin-left:auto;">
+                  Net Score: <strong style="color:${netScore > 0 ? '#4ade80' : netScore < 0 ? '#f87171' : 'var(--text-muted)'};">${netScore > 0 ? '+' : ''}${netScore}</strong>
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Failed to load reviews:', error);
+        list.innerHTML = `
+          <div class="empty-state-modern">
+            <h3>Failed to load reviews</h3>
+            <p>${error.message}</p>
+          </div>`;
+      }
+    }
+
+    function showToast(msg) {
+      const n = document.createElement('div');
+      n.style.cssText = `position:fixed; top:80px; right:20px; background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary)); color:#fff; padding:12px 16px; border-radius:10px; box-shadow:0 8px 25px rgba(236,72,153,0.4); z-index:1000; font-weight:600;`;
+      n.textContent = msg;
+      document.body.appendChild(n);
+      setTimeout(()=> n.remove(), 2000);
+    }
+
+    async function checkUserEligibility() {
+      const eventId = Number(getEventId());
+      try {
+        const tickets = await TicketsAPI.listMyTickets();
+        const hasTicket = tickets.some(ticket => ticket.event_id === eventId);
+        
+        if (!hasTicket) {
+          document.getElementById('reviewForm').innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px;">
+              <i class="fa-solid fa-lock" style="font-size: 3rem; color: #ef4444; margin-bottom: 15px;"></i>
+              <h3 style="color: var(--text-white); margin-bottom: 10px;">Review Restricted</h3>
+              <p style="color: var(--text-muted); margin-bottom: 20px;">You must have attended this event to write a review.</p>
+              <a href="events.html" class="btn-secondary">Browse Events</a>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to check eligibility:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderStars(0);
+      loadEventTitle();
+      loadReviews();
+      checkUserEligibility();
+    });
+
+    // Like/Dislike handlers
+    function handleReviewLike(reviewId) {
+      const likes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+      const userStatus = localStorage.getItem(`review_${reviewId}_liked`);
+      
+      if (userStatus === 'like') {
+        // Remove like
+        likes[reviewId].likes = Math.max(0, likes[reviewId].likes - 1);
+        localStorage.removeItem(`review_${reviewId}_liked`);
+      } else {
+        // Add like (and remove dislike if exists)
+        if (!likes[reviewId]) likes[reviewId] = { likes: 0, dislikes: 0 };
+        if (userStatus === 'dislike') {
+          likes[reviewId].dislikes = Math.max(0, likes[reviewId].dislikes - 1);
+        }
+        likes[reviewId].likes += 1;
+        localStorage.setItem(`review_${reviewId}_liked`, 'like');
+      }
+      
+      localStorage.setItem('reviewLikes', JSON.stringify(likes));
+      loadReviews();
+    }
+
+    function handleReviewDislike(reviewId) {
+      const likes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+      const userStatus = localStorage.getItem(`review_${reviewId}_liked`);
+      
+      if (userStatus === 'dislike') {
+        // Remove dislike
+        likes[reviewId].dislikes = Math.max(0, likes[reviewId].dislikes - 1);
+        localStorage.removeItem(`review_${reviewId}_liked`);
+      } else {
+        // Add dislike (and remove like if exists)
+        if (!likes[reviewId]) likes[reviewId] = { likes: 0, dislikes: 0 };
+        if (userStatus === 'like') {
+          likes[reviewId].likes = Math.max(0, likes[reviewId].likes - 1);
+        }
+        likes[reviewId].dislikes += 1;
+        localStorage.setItem(`review_${reviewId}_liked`, 'dislike');
+      }
+      
+      localStorage.setItem('reviewLikes', JSON.stringify(likes));
+      loadReviews();
+    }
+  </script>
+
+  <style>
+    .star-rating { display:flex; gap:6px; }
+    .star-btn { background:none; border:1px solid var(--border-light); border-radius:8px; padding:8px; cursor:pointer; color: var(--text-white); }
+    .star-btn:hover { border-color: var(--brand-primary); box-shadow: 0 0 0 4px rgba(236,72,153,0.1); }
+
+    .reviews-list { display:flex; flex-direction:column; gap:14px; }
+    .review-card { background: var(--bg-card); border:1px solid var(--border-light); border-radius:12px; padding:14px; }
+    .review-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .review-user { color: var(--text-white); font-weight:600; display:flex; align-items:center; gap:6px; }
+    .review-rating { color: var(--brand-primary); font-weight:700; }
+    .review-comment { color: var(--text-main); margin: 6px 0; }
+    .review-date { color: var(--text-muted); font-size:0.85rem; }
+    .review-remove { background:none; border:none; cursor:pointer; font-size:18px; line-height:1; filter: drop-shadow(0 2px 6px rgba(255,0,0,0.25)); }
+    .review-remove:hover { transform: scale(1.1); }
+  </style>
+</body>
+</html>

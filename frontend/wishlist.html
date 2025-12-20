@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist | Resrvetia Events</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/wishlist-page.css?v=2">
+</head>
+<body onload="initializeUserNavbar();">
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+                <a href="About.html" class="nav-link">About Us</a>
+            </div>
+
+            <!-- User Info & Logout -->
+            <div id="userInfo"></div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Container -->
+    <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="index.html" class="mobile-link">Home</a>
+        <a href="events.html" class="mobile-link">Events</a>
+        <a href="user-dashboard.html" class="mobile-link">My Tickets</a>
+        <a href="About.html" class="mobile-link">About Us</a>
+        <button onclick="logout()" class="mobile-link" style="background: none; text-align: left; color: var(--brand-primary); padding: 12px 20px;">
+            <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+            
+            <!-- Hero Section -->
+            <section class="dashboard-hero">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="welcome-badge">
+                            <i class="fa-solid fa-heart"></i>
+                            <span>Wishlist</span>
+                        </div>
+                        <h1 class="hero-title">My <span class="gradient-text">Favorite Events</span></h1>
+                        <p class="hero-description">All the events you've saved for later. Don't miss out on your favorites!</p>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="events.html" class="btn-hero-primary">
+                            <i class="fa-solid fa-compass"></i>
+                            Discover More Events
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wishlist Section -->
+            <section id="wishlist" class="tickets-section">
+                <div class="section-header-flex">
+                    <div>
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-heart"></i>
+                            Saved Events
+                        </h2>
+                        <p class="section-subtitle" id="wishlistSubtitle">Events you've marked as favorites</p>
+                    </div>
+                    <button class="btn-clear-all" onclick="clearAllWishlist()" id="clearAllBtn" style="display: none;">
+                        <i class="fa-solid fa-trash-can"></i>
+                        Clear All
+                    </button>
+                </div>
+
+                <div id="wishlistContainer" class="events-grid">
+                    <!-- Wishlist items will be populated here -->
+                    <div class="empty-state-modern">
+                        <div class="empty-illustration">
+                            <i class="fa-solid fa-heart-crack"></i>
+                        </div>
+                        <h3>Your wishlist is empty</h3>
+                        <p>Start exploring events and save your favorites by clicking the heart icon on any event card.</p>
+                        <a href="events.html" class="btn-empty-state">
+                            <i class="fa-solid fa-compass"></i>
+                            Browse Events
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col-main">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+                    </div>
+                    <p class="footer-desc">The easiest way to discover and book tickets for the best events in your city. Secure, fast, and reliable.</p>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Resrvetia Events Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Script -->
+    <script src="js/api-service.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/wishlist-page.js?v=2"></script>
+</body>
+</html>

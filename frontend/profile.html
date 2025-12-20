@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings | Resrvetia</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/profile-page.css?v=2">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+                <a href="About.html" class="nav-link">About Us</a>
+            </div>
+
+            <!-- User Info & Logout -->
+            <div id="userInfo"></div>
+        </div>
+    </nav>
+    <div class="profile-container">
+        <div class="profile-card">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" id="userAvatar" onclick="document.getElementById('profilePhotoInput').click()" style="cursor:pointer; position:relative;" title="Click to change photo">
+                        ?<div class="camera-badge"><i class="fa-solid fa-camera" style="font-size:0.7rem;"></i></div>
+                    </div>
+                    <a class="change-photo-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Change Photo
+                    </a>
+                    <a class="delete-photo-btn" id="deletePhotoBtn" onclick="deleteProfilePhoto()" style="display:none;">
+                        <i class="fa-solid fa-trash"></i> Remove Photo
+                    </a>
+                </div>
+                <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoChange(event)">
+                <div class="profile-info">
+                    <h1 id="userName">Loading...</h1>
+                    <p id="userEmail">Loading profile from database...</p>
+                </div>
+            </div>
+            <!-- Profile Form -->
+            <form id="profileForm" onsubmit="handleSaveProfile(event)">
+                <!-- Username Section -->
+                <div class="section-title">
+                    <i class="fa-solid fa-user"></i> Profile Information
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="Enter new username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" id="phoneInput" class="form-input" placeholder="Enter your phone number">
+                </div>
+
+                <!-- Password Section -->
+                <div class="section-title">
+                    <i class="fa-solid fa-lock"></i> Security
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password (optional)</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="newPasswordInput" class="form-input password-field" placeholder="Leave blank to keep current">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility(this)">
+                            <i class="fa-regular fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmPasswordInput" class="form-input password-field" placeholder="Confirm new password">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility(this)">
+                            <i class="fa-regular fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div id="successAlert" class="alert success">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span id="successMessage">Changes saved successfully!</span>
+                </div>
+                <div id="errorAlert" class="alert error">
+                    <i class="fa-solid fa-exclamation-circle"></i>
+                    <span id="errorMessage">An error occurred. Please try again.</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-save"></i> Save Changes
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="goToDashboard()">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api-service.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/profile-page.js?v=2"></script>
+</body>
+</html>

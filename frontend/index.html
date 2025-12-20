@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resrvetia Events | Discover & Book</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Project CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <!-- Left: Logo -->
+            <div class="logo" onclick="window.scrollTo(0,0)">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </div>
+
+            <!-- Center: Menu Links -->
+            <div class="nav-links">
+                <a href="#" class="nav-link">Explore</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+                <a href="About.html" class="nav-link">About Us</a>
+            </div>
+
+            <!-- Right: Dynamic Auth (Sign In or Profile) -->
+            <div id="navAuth" class="nav-auth-container">
+                <!-- JS will populate this -->
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Container -->
+    <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="#" class="mobile-link">Explore</a>
+        <a href="#events-section" class="mobile-link">Categories</a>
+        <a href="#" class="mobile-link">My Tickets</a>
+        <a href="About.html" class="nav-link">About Us</a>
+        <!-- Mobile Auth Link -->
+        <div id="mobileAuth"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Concert Crowd">
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="container" style="position: relative; z-index: 2;">
+            <h1 class="hero-title">
+                Experience the <span class="text-gradient">Extraordinary</span>
+            </h1>
+            <p class="hero-subtitle">
+                Discover concerts, tech summits, art galleries, and culinary experiences happening near you.
+            </p>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="input-group">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search events, artists..." class="search-input">
+                </div>
+                <div class="input-group input-border-left">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <select class="location-select">
+                        <option value="All">Anywhere</option>
+                        <option>Cairo, EG</option>
+                        <option>New Cairo, EG</option>
+                        <option>Zamalek, EG</option>
+                        <option>El jazerah, EG</option>
+                        <option>Zayed, EG</option>
+                    </select>
+                </div>
+                <button onclick="filterEvents()" class="btn-primary" style="border-radius: 12px; padding: 0 30px;">
+                    Search
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="events-section" class="container" style="padding-top: 60px; padding-bottom: 60px;">
+        
+        <!-- Category Filter -->
+        <div class="section-header">
+            <h2 class="section-title">Upcoming Events</h2>
+
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="categories">
+                    <button onclick="setCategory('All')" class="category-btn active">All</button>
+                    <button onclick="setCategory('sports')" class="category-btn">Sports</button>
+                    <button onclick="setCategory('theater')" class="category-btn">Theater</button>
+                    <button onclick="setCategory('conference')" class="category-btn">Conference</button>
+                    <button onclick="setCategory('comedy')" class="category-btn">Comedy</button>
+                    <button onclick="setCategory('other')" class="category-btn">Other</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div id="eventsGrid" class="events-grid">
+            <!-- Events will be injected here via JS -->
+        </div>
+
+        <!-- No Results State -->
+        <div id="noResults" class="no-results hidden">
+            <div class="no-results-icon">
+                <i class="fa-regular fa-calendar-xmark"></i>
+            </div>
+            <h3 class="section-title" style="font-size: 1.5rem;">No events found</h3>
+            <p class="no-results-text">Try adjusting your search or category filters.</p>
+            <button onclick="resetFilters()" class="btn-clear">Clear all filters</button>
+        </div>
+
+        <!-- Explore More Button -->
+        <div class="view-all-container">
+            <a href="events.html" class="btn-explore-large">
+                Explore More Events <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col-main">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+                    </div>
+                    <p class="footer-desc">The easiest way to discover and book tickets for the best events in your city. Secure, fast, and reliable.</p>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="About.html">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Resrvetia Events Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Complete Reservation</h3>
+                <button onclick="closeModal()" class="btn-close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-event-info">
+                    <h4 id="modalEventTitle" class="modal-event-title">Event Title</h4>
+                    <div class="modal-event-details">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span id="modalEventDate">Oct 24, 2023</span>
+                        <span>•</span>
+                        <i class="fa-solid fa-tag" style="color: var(--brand-primary)"></i>
+                        <span id="modalEventPrice" class="highlight">$0</span>
+                    </div>
+                </div>
+
+                <form onsubmit="handleBooking(event)">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" required class="form-input" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" required class="form-input" placeholder="john@example.com">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tickets" class="form-label">Quantity</label>
+                            <div class="ticket-control">
+                                <button type="button" onclick="adjustTickets(-1)" class="btn-ticket">-</button>
+                                <input type="number" id="tickets" value="1" min="1" max="10" readonly class="ticket-input">
+                                <button type="button" onclick="adjustTickets(1)" class="btn-ticket">+</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total</label>
+                            <div class="total-box" id="totalPrice">$0</div>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 10px;">
+                        <button type="submit" class="btn-submit">
+                            Confirm Booking
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div id="notification" class="notification">
+        <div class="notif-icon">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+            <h4 style="font-weight: 700; font-size: 0.9rem; color: white;">Booking Confirmed!</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Check your email for tickets.</p>
+        </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="js/api-service.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/main.js?v=2"></script>
+
+    <script src="js/index-page.js?v=2"></script>
+</body>
+</html>

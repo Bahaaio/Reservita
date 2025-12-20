@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | Resrvetia Events</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body onload="protectDashboard('user'); initializeUserNavbar();">
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo" onclick="window.scrollTo(0,0)">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="events.html" class="nav-link">My Tickets</a>
+                <a href="About.html" class="nav-link">About Us</a>
+                
+            </div>
+
+            <!-- User Info & Logout -->
+            <div id="userInfo"></div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Container -->
+    <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="index.html" class="mobile-link">Explore</a>
+        <a href="events.html" class="mobile-link">My Tickets</a>
+        <a href="About.html" class="mobile-link">About Us</a>
+        <button onclick="logout()" class="mobile-link" style="background: none; text-align: left; color: var(--brand-primary); padding: 12px 20px;">
+            <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+            
+            <!-- Hero Welcome Section -->
+            <section class="dashboard-hero">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="welcome-badge">
+                            <i class="fa-solid fa-sparkles"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <h1 class="hero-title">Welcome back, <span id="userName" class="gradient-text"></span>!</h1>
+                        <p class="hero-description">Track your tickets, discover new events, and never miss a moment.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="events.html" class="btn-hero-primary">
+                            <i class="fa-solid fa-compass"></i>
+                            Discover Events
+                        </a>
+                        <a href="#bookings" class="btn-hero-secondary">
+                            <i class="fa-solid fa-ticket"></i>
+                            My Tickets
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalEvents">0</div>
+                            <div class="stat-label">Total Events</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalTickets">0</div>
+                            <div class="stat-label">Total Tickets</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="upcomingEvents">0</div>
+                            <div class="stat-label">Upcoming</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Tickets Section -->
+            <section id="bookings" class="tickets-section">
+                <div class="section-header-flex">
+                    <div>
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-ticket"></i>
+                            My Tickets
+                        </h2>
+                        <p class="section-subtitle">All your upcoming and past event tickets</p>
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="tab-btn active" onclick="filterTickets('all')">All</button>
+                        <button class="tab-btn" onclick="filterTickets('upcoming')">Upcoming</button>
+                        <button class="tab-btn" onclick="filterTickets('past')">Past</button>
+                    </div>
+                </div>
+
+                <div id="bookingsList" class="tickets-grid">
+                    <!-- Tickets will be populated here -->
+                    <div class="empty-state-modern">
+                        <div class="empty-illustration">
+                            <i class="fa-solid fa-ticket-simple"></i>
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <h3>No tickets yet</h3>
+                        <p>Your ticket collection is empty. Start by exploring amazing events near you!</p>
+                        <a href="events.html" class="btn-empty-state">
+                            <i class="fa-solid fa-compass"></i>
+                            Browse Events
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col-main">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+                    </div>
+                    <p class="footer-desc">The easiest way to discover and book tickets for the best events in your city. Secure, fast, and reliable.</p>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Resrvetia Events Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Manage Seats Modal -->
+    <div id="manageSeatsModal" class="manage-seats-modal hidden">
+        <div class="manage-seats-content">
+            <div class="manage-seats-header">
+                <h2>Manage Seats</h2>
+                <button class="modal-close-btn" onclick="closeManageSeatsModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="manage-seats-body" id="manageSeatsBody">
+                <!-- Seats list will be populated here -->
+            </div>
+            <div class="manage-seats-footer">
+                <button class="btn-modal-close" onclick="closeManageSeatsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Script -->
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js?v=2"></script>
+    
+    <!-- Dashboard Script -->
+    <script>
+        let currentFilter = 'all';
+
+        function filterTickets(filter) {
+            currentFilter = filter;
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Re-render tickets with filter applied
+            renderTicketsWithFilter(currentTickets, filter);
+        }
+
+        function renderTicketsWithFilter(tickets, filter) {
+            let filteredTickets = tickets;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (filter === 'upcoming') {
+                filteredTickets = tickets.filter(t => {
+                    const eventDate = new Date(t.event_starts_at);
+                    return eventDate > today;
+                });
+            } else if (filter === 'past') {
+                filteredTickets = tickets.filter(t => {
+                    const eventDate = new Date(t.event_starts_at);
+                    return eventDate <= today;
+                });
+            }
+            
+            renderTickets(filteredTickets);
+        }
+
+        async function cancelBooking(bookingIndex) {
+            const user = getLoggedInUser();
+            const bookings = user.bookings || [];
+            const booking = bookings[bookingIndex];
+            
+            // Get the actual event date from allEvents
+            const allEvents = JSON.parse(localStorage.getItem('allEvents') || '[]');
+            const event = allEvents.find(e => e.id === booking.eventId);
+            const eventDateString = event ? event.dateString : booking.date;
+            
+            // Check if cancellation is within 24 hours
+            const eventDate = new Date(eventDateString);
+            const now = new Date();
+            const hoursUntilEvent = (eventDate - now) / (1000 * 60 * 60);
+            
+            console.log('Event date:', eventDate);
+            console.log('Now:', now);
+            console.log('Hours until event:', hoursUntilEvent);
+            
+            // Check if event is in the past
+            if (hoursUntilEvent < 0) {
+                showDashboardNotification('This event has already passed and cannot be cancelled.', 'warning');
+                return;
+            }
+            
+            // Check if cancellation is within 24 hours
+            if (hoursUntilEvent < 24) {
+                showDashboardNotification('Sorry! Cancellations are not allowed within 24 hours before the event.', 'warning');
+                return;
+            }
+            
+            if (!await showDashboardConfirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+                return;
+            }
+            
+            // Remove the booking
+            bookings.splice(bookingIndex, 1);
+            user.bookings = bookings;
+            
+            // Update localStorage
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            users = users.map(u => {
+                if (u.email === user.email) {
+                    return user;
+                }
+                return u;
+            });
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Reload page
+            window.location.reload();
+        }
+
+        // In-memory tickets for live UI updates
+        let currentTickets = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = getLoggedInUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name;
+                
+                try {
+                    // Load tickets from backend API
+                    const tickets = await TicketsAPI.listMyTickets();
+                    console.log('Loaded tickets from API:', tickets);
+                    currentTickets = Array.isArray(tickets) ? tickets : [];
+                    
+                    // Calculate stats
+                    const totalTickets = currentTickets.length;
+                    const uniqueEvents = new Set(currentTickets.map(t => t.event_id)).size;
+                    
+                    // Count upcoming events (events that haven't happened yet)
+                    const today = new Date();
+                    const upcomingEvents = currentTickets.filter(ticket => {
+                        const eventDate = new Date(ticket.event_starts_at);
+                        return eventDate > today;
+                    }).length;
+                    
+                    // Update stat cards
+                    document.getElementById('totalEvents').textContent = uniqueEvents;
+                    document.getElementById('totalTickets').textContent = totalTickets;
+                    document.getElementById('upcomingEvents').textContent = upcomingEvents;
+                    
+                    // Render tickets if they exist
+                    if (currentTickets.length > 0) {
+                        renderTicketsWithFilter(currentTickets, currentFilter);
+                    }
+                } catch (error) {
+                    console.error('Failed to load tickets:', error);
+                    // Fallback to empty state
+                    document.getElementById('totalEvents').textContent = '0';
+                    document.getElementById('totalTickets').textContent = '0';
+                    document.getElementById('upcomingEvents').textContent = '0';
+                }
+            }
+        });
+
+        function renderTickets(tickets) {
+            const container = document.getElementById('bookingsList');
+            
+            if (!tickets || tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state-modern">
+                        <div class="empty-illustration">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <h3>No tickets yet</h3>
+                        <p>Book your first event to see your tickets here!</p>
+                        <a href="events.html" class="btn-empty-state">
+                            <i class="fa-solid fa-compass"></i>
+                            Browse Events
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group tickets by event
+            const groupedTickets = {};
+            tickets.forEach(ticket => {
+                if (!groupedTickets[ticket.event_id]) {
+                    groupedTickets[ticket.event_id] = {
+                        event_id: ticket.event_id,
+                        event_title: ticket.event_title,
+                        event_starts_at: ticket.event_starts_at,
+                        event_venue: ticket.event_venue,
+                        status: ticket.status,
+                        tickets: []
+                    };
+                }
+                groupedTickets[ticket.event_id].tickets.push(ticket);
+            });
+            
+            container.innerHTML = Object.values(groupedTickets).map((eventGroup) => {
+                const eventDate = new Date(eventGroup.event_starts_at);
+                const confirmedTickets = eventGroup.tickets.filter(t => {
+                    const s = (t.status || '').toLowerCase();
+                    return s !== 'canceled' && s !== 'cancelled';
+                });
+                if (confirmedTickets.length === 0) {
+                    return '';
+                }
+                const statusColor = 'var(--success-color)';
+                const ticketCount = confirmedTickets.length;
+                const totalPrice = confirmedTickets.reduce((sum, t) => sum + parseFloat(t.price_paid || 0), 0);
+                const ticketIds = confirmedTickets.map(t => t.id).join(',');
+                const seatsData = JSON.stringify(confirmedTickets.map(t => ({ id: t.id, label: t.seat_label || t.seat_number })));
+                const displayStatus = ticketCount > 0 ? 'Confirmed' : 'Cancelled';
+                const displayStatusColor = ticketCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                const displayStatusTextColor = ticketCount > 0 ? '#22c55e' : '#ef4444';
+                const displayStatusBorderColor = ticketCount > 0 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+                
+                return `
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <div class="ticket-date">
+                            <i class="fa-solid fa-calendar"></i>
+                            ${eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <div class="ticket-badge" style="background: ${displayStatusColor}; color: ${displayStatusTextColor}; border-color: ${displayStatusBorderColor};">${displayStatus}</div>
+                    </div>
+                    
+                    <div class="ticket-count-badge">
+                        <i class="fa-solid fa-ticket"></i>
+                        <span>${ticketCount} Ticket${ticketCount > 1 ? 's' : ''}</span>
+                    </div>
+                    
+                    <h3 class="ticket-title">${eventGroup.event_title}</h3>
+                    <div class="ticket-details">
+                        <div class="ticket-info">
+                            <i class="fa-solid fa-chair"></i>
+                            <button class="btn-manage-seats" type="button" data-event-id="${eventGroup.event_id}" data-event-title="${eventGroup.event_title}" data-seats='${seatsData}' onclick="event.preventDefault(); openManageSeatsModalSimple(this); return false;">
+                                <i class="fa-solid fa-list"></i>
+                                Manage Seats (${ticketCount})
+                            </button>
+                        </div>
+                        <div class="ticket-info">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>${eventGroup.event_venue || 'TBD'}</span>
+                        </div>
+                        <div class="ticket-info">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <span>$${totalPrice.toFixed(2)} Total</span>
+                        </div>
+                    </div>
+                    <div class="ticket-actions">
+                        <a class="btn-ticket-payment" href="payment.html?tickets=${ticketIds}">
+                            <i class="fa-solid fa-receipt"></i>
+                            Payment
+                        </a>
+                        <a class="btn-ticket-view" href="event-details.html?id=${eventGroup.event_id}">
+                            <i class="fa-solid fa-eye"></i>
+                            View Event
+                        </a>
+                        <a class="btn-ticket-review" href="review.html?id=${eventGroup.event_id}">
+                            <i class="fa-solid fa-comment-dots"></i>
+                            Review
+                        </a>
+                        ${ticketCount > 1 ? `
+                        <button class="btn-ticket-cancel-all" onclick="cancelAllTickets('${ticketIds}')">
+                            <i class="fa-solid fa-ban"></i>
+                            Cancel All
+                        </button>` : ''}
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        async function cancelTicket(ticketId, ev) {
+            if (!await showDashboardConfirm('Are you sure you want to cancel this ticket?')) {
+                return;
+            }
+            
+            try {
+                await TicketsAPI.cancelTicket(ticketId);
+                // Remove cancelled ticket locally and re-render with filter
+                currentTickets = currentTickets.filter(t => t.id !== ticketId);
+                showDashboardNotification('Ticket cancelled successfully', 'success');
+                renderTicketsWithFilter(currentTickets, currentFilter);
+            } catch (error) {
+                console.error('Failed to cancel ticket:', error);
+                showDashboardNotification('Failed to cancel ticket: ' + (error.message || 'Unknown error'), 'error');
+            }
+        }
+
+        function showDashboardNotification(message, type) {
+            const existing = document.getElementById('dashboardToast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'dashboardToast';
+            let bg = 'rgba(15,23,42,0.95)';
+            if (type === 'success') bg = 'rgba(22,163,74,0.95)';
+            else if (type === 'error') bg = 'rgba(220,38,38,0.95)';
+            else if (type === 'warning') bg = 'rgba(234,179,8,0.95)';
+
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 24px;
+                padding: 12px 20px;
+                border-radius: 999px;
+                color: white;
+                background: ${bg};
+                box-shadow: 0 12px 30px rgba(15,23,42,0.6);
+                z-index: 30000;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                animation: slideIn 0.25s ease-out;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.25s ease-in';
+                setTimeout(() => toast.remove(), 250);
+            }, 2500);
+        }
+
+        async function cancelAllTickets(ticketIdsCsv) {
+            const ids = (ticketIdsCsv || '').split(',').map(s => parseInt(s, 10)).filter(n => Number.isFinite(n));
+            if (ids.length === 0) return;
+            if (!await showDashboardConfirm(`Cancel ${ids.length} ticket${ids.length>1?'s':''}?`)) return;
+
+            let failed = 0;
+            for (const id of ids) {
+                try {
+                    await TicketsAPI.cancelTicket(id);
+                } catch (e) {
+                    failed++;
+                }
+            }
+            if (failed === 0) {
+                showDashboardNotification('All selected tickets cancelled', 'success');
+            } else if (failed < ids.length) {
+                showDashboardNotification(`Some tickets failed to cancel (${failed}/${ids.length})`, 'warning');
+            } else {
+                showDashboardNotification('Failed to cancel tickets', 'error');
+            }
+            // Remove cancelled tickets locally and re-render with filter
+            currentTickets = currentTickets.filter(t => !ids.includes(t.id));
+            renderTicketsWithFilter(currentTickets, currentFilter);
+        }
+
+        function openManageSeatsModalSimple(button) {
+            try {
+                const eventId = button.getAttribute('data-event-id');
+                const eventTitle = button.getAttribute('data-event-title');
+                const seatsJsonStr = button.getAttribute('data-seats');
+                const seats = JSON.parse(seatsJsonStr);
+                const modal = document.getElementById('manageSeatsModal');
+                const body = document.getElementById('manageSeatsBody');
+                
+                let seatsHtml = seats.map((seat, idx) => `
+                    <div class="seat-item">
+                        <span class="seat-label">Seat: ${seat.label}</span>
+                        <button class="btn-delete-seat" onclick="deleteSeatFromModal(${seat.id})">
+                            <i class="fa-solid fa-trash"></i>
+                            Delete Seat
+                        </button>
+                    </div>
+                `).join('');
+                
+                body.innerHTML = seatsHtml;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } catch (e) {
+                console.error('Error opening manage seats modal:', e);
+                showDashboardNotification('Error opening seats modal', 'error');
+            }
+        }
+
+        function openManageSeatsModal(eventId, eventTitle, seatsJsonStr) {
+            try {
+                const seats = JSON.parse(seatsJsonStr);
+                const modal = document.getElementById('manageSeatsModal');
+                const body = document.getElementById('manageSeatsBody');
+                
+                let seatsHtml = seats.map((seat, idx) => `
+                    <div class="seat-item">
+                        <span class="seat-label">Seat: ${seat.label}</span>
+                        <button class="btn-delete-seat" onclick="deleteSeatFromModal(${seat.id})">
+                            <i class="fa-solid fa-trash"></i>
+                            Delete Seat
+                        </button>
+                    </div>
+                `).join('');
+                
+                body.innerHTML = seatsHtml;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } catch (e) {
+                console.error('Error opening manage seats modal:', e);
+                showDashboardNotification('Error opening seats modal', 'error');
+            }
+        }
+
+        function closeManageSeatsModal() {
+            const modal = document.getElementById('manageSeatsModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function deleteSeatFromModal(ticketId) {
+            if (!await showDashboardConfirm('Are you sure you want to delete this seat?')) {
+                return;
+            }
+            
+            try {
+                await TicketsAPI.cancelTicket(ticketId);
+                currentTickets = currentTickets.filter(t => t.id !== ticketId);
+                showDashboardNotification('Seat deleted successfully', 'success');
+                closeManageSeatsModal();
+                renderTicketsWithFilter(currentTickets, currentFilter);
+            } catch (error) {
+                console.error('Failed to delete seat:', error);
+                showDashboardNotification('Failed to delete seat: ' + (error.message || 'Unknown error'), 'error');
+            }
+        }
+    </script>
+
+    <style>
+        /* Ticket Card Styles */
+        .ticket-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--brand-primary), var(--brand-dark));
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(236, 72, 153, 0.5);
+            box-shadow: 0 12px 35px rgba(236, 72, 153, 0.25);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-left: 8px;
+        }
+
+        .ticket-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .ticket-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            text-transform: capitalize;
+        }
+
+        .ticket-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+            color: white;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            margin-left: 8px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35);
+        }
+
+        .ticket-count-badge i {
+            font-size: 1.05rem;
+        }
+
+        .ticket-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 20px;
+            line-height: 1.3;
+            padding-left: 8px;
+        }
+
+        .ticket-details {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding-left: 8px;
+        }
+
+        .ticket-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .ticket-info i {
+            color: var(--brand-primary);
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .ticket-info-seats {
+            align-items: flex-start;
+        }
+
+        .seats-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-left: 8px;
+        }
+
+        .ticket-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .ticket-actions {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ticket-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-ticket-view {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary));
+            color: white;
+            border: none;
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-ticket-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-ticket-download {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-white);
+            border: 1px solid var(--border-light);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ticket-payment {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            grid-column: 1 / -1;
+        }
+
+        .btn-ticket-payment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-ticket-review {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-ticket-review:hover {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #a5b4fc;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        }
+
+        .seat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text-white);
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            transition: all 0.25s ease;
+        }
+
+        .seat-cancel {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #ef4444;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .seat-cancel:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .seat-chip.removing {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        .btn-ticket-cancel-all {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: none;
+            grid-column: 1 / -1;
+        }
+
+        .btn-ticket-cancel-all:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-ticket-cancel-emoji {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-ticket-cancel-emoji:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 22px rgba(239, 68, 68, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .dashboard-hero {
+                padding: 30px 20px;
+            }
+
+            .section-header-flex {
+                flex-direction: column;
+            }
+
+            .tickets-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-manage-seats {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.08));
+            color: var(--brand-primary);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-manage-seats:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(236, 72, 153, 0.15));
+            color: #ff6b9d;
+            border-color: rgba(236, 72, 153, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.2);
+        }
+
+        .manage-seats-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .manage-seats-modal.hidden {
+            display: none;
+        }
+
+        .manage-seats-content {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95));
+            border: 1px solid rgba(236, 72, 153, 0.15);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 75vh;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(12px);
+            animation: slideUp 0.3s ease-out;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .manage-seats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px 32px 24px 32px;
+            border-bottom: 1px solid rgba(236, 72, 153, 0.15);
+        }
+
+        .manage-seats-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--brand-primary);
+            transform: rotate(90deg);
+            background: rgba(236, 72, 153, 0.1);
+            border-radius: 8px;
+        }
+
+        .manage-seats-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .manage-seats-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .manage-seats-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .manage-seats-body::-webkit-scrollbar-thumb {
+            background: rgba(236, 72, 153, 0.2);
+            border-radius: 3px;
+        }
+
+        .manage-seats-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(236, 72, 153, 0.4);
+        }
+
+        .seat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(236, 72, 153, 0.08);
+            border-radius: 14px;
+            transition: all 0.25s ease;
+        }
+
+        .seat-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(236, 72, 153, 0.2);
+            transform: translateX(4px);
+        }
+
+        .seat-label {
+            color: var(--text-white);
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-delete-seat {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .btn-delete-seat:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.25);
+        }
+
+        .manage-seats-footer {
+            padding: 20px 32px;
+            border-top: 1px solid rgba(236, 72, 153, 0.15);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-modal-close {
+            background: rgba(236, 72, 153, 0.12);
+            color: var(--brand-primary);
+            border: 1px solid rgba(236, 72, 153, 0.25);
+            padding: 11px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-modal-close:hover {
+            background: rgba(236, 72, 153, 0.2);
+            border-color: rgba(236, 72, 153, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(236, 72, 153, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <!-- Confirmation Modal for Dashboard -->
+    <div id="dashboardConfirmModal" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); z-index:10002;">
+        <div style="background:linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95)); border:1px solid rgba(236,72,153,0.18); border-radius:12px; width:90%; max-width:420px; padding:20px; box-shadow:0 20px 60px rgba(236,72,153,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0; color:var(--text-white); font-size:1.05rem;"><i class="fa-solid fa-question-circle" style="color:rgba(236,72,153,0.95);"></i> Confirmation</h3>
+                <button onclick="closeDashboardConfirm(false)" style="background:transparent; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div style="color:var(--text-main); margin-bottom:18px; font-size:1.05rem;" id="dashboardConfirmMessage"></div>
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeDashboardConfirm(false)" style="padding:10px 14px; background:rgba(236,72,153,0.06); border:1px solid rgba(236,72,153,0.12); color:var(--brand-primary);">Cancel</button>
+                <button type="button" class="btn-primary-submit" onclick="closeDashboardConfirm(true)" style="padding:10px 14px; background:linear-gradient(135deg, rgba(236,72,153,0.95), rgba(236,72,153,0.7)); color:white; border:none;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Small confirm modal helper for the dashboard
+        let _dashboardConfirmResolve = null;
+        function showDashboardConfirm(message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('dashboardConfirmModal');
+                document.getElementById('dashboardConfirmMessage').textContent = message;
+                modal.style.display = 'flex';
+                _dashboardConfirmResolve = resolve;
+            });
+        }
+
+        function closeDashboardConfirm(result) {
+            const modal = document.getElementById('dashboardConfirmModal');
+            modal.style.display = 'none';
+            if (_dashboardConfirmResolve) {
+                _dashboardConfirmResolve(result);
+                _dashboardConfirmResolve = null;
+            }
+        }
+
+        // Highlight updated fields when page loads
+        function highlightUpdatedFields() {
+            const updates = localStorage.getItem('profileUpdates');
+            if (updates) {
+                const updateList = JSON.parse(updates);
+                
+                updateList.forEach(update => {
+                    if (update === 'username') {
+                        const userNameEl = document.querySelector('.user-name');
+                        if (userNameEl) {
+                            userNameEl.classList.add('highlight-updated');
+                        }
+                    } else if (update === 'photo') {
+                        const userAvatarEl = document.querySelector('.user-avatar');
+                        if (userAvatarEl) {
+                            userAvatarEl.classList.add('highlight-updated');
+                        }
+                    }
+                });
+                
+                localStorage.removeItem('profileUpdates');
+            }
+        }
+
+        window.addEventListener('load', highlightUpdatedFields);
+    </script>

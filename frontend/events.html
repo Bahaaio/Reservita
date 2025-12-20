@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Events | Resrvetia</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/events.css">
+
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-gem"></i></div>
+                <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+                <a href="About.html" class="nav-link">About Us</a>
+                
+            </div>
+
+            <div class="nav-links">
+                <div id="authContainer" style="display: flex; align-items: center; gap: 15px;">
+                    <a href="wishlist.html" class="wishlist-icon" title="My Wishlist">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="wishlistCount" class="wishlist-count">0</span>
+                    </a>
+                    <div id="userProfile" class="logo-icon" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer;" title="User Profile">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <a id="signInBtn" href="signin.html" class="btn-nav-signin">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <h1 class="page-title">Explore Events</h1>
+            <p class="page-subtitle">Find the best concerts, workshops, and tech summits near you.</p>
+        </header>
+
+        <div class="content-wrapper">
+            
+            <!-- Sidebar Filters -->
+            <aside class="filter-sidebar">
+                <!-- Search -->
+                <div class="filter-group">
+                    <div class="filter-title">Search</div>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Event name, artist...">
+                </div>
+
+                <!-- Category -->
+                <div class="filter-group">
+                    <div class="filter-title">Category</div>
+                    <div class="checkbox-group" id="categoryFilters">
+                        <label class="checkbox-label"><input type="checkbox" value="sports"> Sports</label>
+                        <label class="checkbox-label"><input type="checkbox" value="theater"> Theater</label>
+                        <label class="checkbox-label"><input type="checkbox" value="conference"> Conference</label>
+                        <label class="checkbox-label"><input type="checkbox" value="comedy"> Comedy</label>
+                        <label class="checkbox-label"><input type="checkbox" value="other"> Other</label>
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="filter-group">
+                    <div class="filter-title">Date</div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <input type="date" id="dateStart" class="search-input" style="color-scheme: dark;">
+                        <span style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">to</span>
+                        <input type="date" id="dateEnd" class="search-input" style="color-scheme: dark;">
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="filter-group">
+                    <div class="filter-title">City</div>
+                    <select id="citySelect" class="search-input" style="cursor: pointer;">
+                        <option value="All">All Cities</option>
+                        <option value="Cairo, EG">Cairo, EG</option>
+                        <option value="New Cairo, EG">New Cairo, EG</option>
+                        <option value="Zamalek, EG">Zamalek, EG</option>
+                        <option value="El jazerah, EG">El jazerah, EG</option>
+                        <option value="Zayed, EG">Zayed, EG</option>
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="filter-group">
+                    <div class="filter-title">Price Range</div>
+                    <div class="price-range-inputs">
+                        <input type="number" id="priceMin" class="price-input" placeholder="Min" value="0">
+                        <span style="color: var(--text-muted);">-</span>
+                        <input type="number" id="priceMax" class="price-input" placeholder="Max" value="">
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="filter-group">
+                    <div class="filter-title">Ticket Type</div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="radio" name="priceType" value="any" checked> Any</label>
+                        <label class="checkbox-label"><input type="radio" name="priceType" value="paid"> Paid</label>
+                        <label class="checkbox-label"><input type="radio" name="priceType" value="free"> Free</label>
+                    </div>
+                </div>
+
+                <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+            </aside>
+
+            <!-- Main Content -->
+            <main>
+                <!-- Sorting Bar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span id="resultsCount" style="color: var(--text-muted); font-size: 0.9rem;">Showing events</span>
+                    <select id="sortSelect" onchange="applyFilters()" class="search-input" style="width: auto; padding: 5px 10px;">
+                        <option value="date">Sort by: Date (Newest)</option>
+                        <option value="price_asc">Sort by: Price (Low to High)</option>
+                        <option value="price_desc">Sort by: Price (High to Low)</option>
+                    </select>
+                </div>
+
+                <!-- Events Grid -->
+                <div class="events-grid" id="eventsContainer">
+                    <!-- Event Cards will be generated by JS -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <span style="color: var(--text-muted);">...</span>
+                    <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/api-service.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/events-list.js?v=2"></script>
+    <script src="js/events-page.js?v=2"></script>

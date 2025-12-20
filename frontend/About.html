@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Resrvetia</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main site styles (shared) -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- link css -->
+    <link rel="stylesheet" href="css/aboutus.css">
+
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            
+            <div class="logo" onclick="window.scrollTo(0,0)">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                
+                <a href="index.html" ><span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+            </a></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Explore</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+                <a href="About.html" class="nav-link active">About Us</a>
+            </div>
+
+            <!-- Right: Auth Container -->
+            <div id="navAuth" class="nav-auth-container">
+                <a href="signin.html" class="btn-primary">Sign In</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Container -->
+    <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="index.html" class="mobile-link">Explore</a>
+        <a href="events.html" class="mobile-link">Events</a>
+        <a href="user-dashboard.html" class="mobile-link">My Tickets</a>
+        <div id="mobileAuth">
+            <a href="signin.html" class="mobile-link" style="color: var(--brand-primary);">Sign In</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="about-hero">
+        <div class="container">
+            <h1 class="hero-title">Meet the <span class="text-gradient">Architects</span></h1>
+            <p class="hero-subtitle">
+                We are a team of 6 passionate developers building the next generation of event discovery. 
+                Combining code, creativity, and chaos to bring Resrvetia Events to life.
+            </p>
+        </div>
+    </header>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <div class="team-grid">
+                
+                <!-- Developer 1 -->
+                <div class="dev-card">
+                    <div class="img-container">
+                        <img src="Images/Farouk.jpg" alt="Dev 1" class="dev-img">
+                    </div>
+                    <h3 class="dev-name">Abdelrahman Farouk</h3>
+                    <span class="dev-role">Backend Engineer</span>
+                    <p class="dev-bio">Full Stack wizard.</p>
+                    <div class="dev-socials">                       
+                    </div>
+                </div>
+
+                <!-- Developer 2 -->
+                <div class="dev-card">
+                    <div class="img-container">
+                        <img src="Images/Amed.jpg" alt="Dev 2" class="dev-img">
+                    </div>
+                    <h3 class="dev-name">Yousef Waleed</h3>
+                    <span class="dev-role">Backend Engineer</span>
+                    <p class="dev-bio">Crafting pixel-perfect experiences.</p>
+                    <div class="dev-socials">
+                    </div>
+                </div>
+
+                <!-- Developer 3 -->
+                <div class="dev-card">
+                    <div class="img-container">
+                        <img src="Images/Bahaa.png" alt="Dev 3" class="dev-img">
+                    </div>
+                    <h3 class="dev-name">Bahaa El-Deen Mohamed</h3>
+                    <span class="dev-role">Backend Engineer</span>
+                    <p class="dev-bio">Master of databases and APIs.</p>
+                    <div class="dev-socials">
+                        
+                    </div>
+                </div>
+
+                <!-- Developer 4 -->
+                <div class="dev-card">
+                    <div class="img-container">
+                        <img src="Images/jopg" alt="Dev 4" class="dev-img">
+                    </div>
+                    <h3 class="dev-name">Yousef Khaled</h3>
+                    <span class="dev-role">Frontend Dev</span>
+                    <p class="dev-bio">CSS whisperer.</p>
+                    <div class="dev-socials">
+                    </div>
+                </div>
+
+                <!-- Developer 5 -->
+                <div class="dev-card">
+                    <div class="img-container">
+                        <img src="Images/Yussuf.jpg" alt="Dev 5" class="dev-img">
+                    </div>
+                    <h3 class="dev-name">Yussuf Hassan</h3>
+                    <span class="dev-role">Frontend Dev</span>
+                    <p class="dev-bio">The Master of full stack development.</p>
+                    <div class="dev-socials">
+                        
+                    </div>
+                </div>
+                <!-- Developer 6 -->
+                <div class="dev-card">
+                    <div class="img-container">
+                        <img src="Images/Ahmed.jpg" alt="Dev 6" class="dev-img">
+                    </div>
+                    <h3 class="dev-name">Ahmed Louay</h3>
+                    <span class="dev-role">Frontend Dev</span>
+                    <p class="dev-bio">The bug hunter.</p>
+                    <div class="dev-socials">
+                        
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Resrvetia Events Team. Crafted with code and passion.</p>
+        </div>
+    </footer>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/about-page.js"></script>
+</body>
+</html>

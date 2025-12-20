@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Reviews | Resrvetia Events</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body onload="initializeUserNavbar();">
+  <nav class="navbar">
+    <div class="container nav-content">
+      <a href="index.html" class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-gem"></i></div>
+        <span>Resrvetia<span style="color: var(--brand-primary)">Events</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="events.html" class="nav-link">Events</a>
+        <a href="user-dashboard.html" class="nav-link">My Tickets</a>
+        <a href="About.html" class="nav-link">About Us</a>
+      </div>
+      <div id="userInfo"></div>
+    </div>
+  </nav>
+
+  <main class="dashboard-main">
+    <div class="container" style="padding-top: 90px; padding-bottom: 60px;">
+      <section class="dashboard-hero" style="padding: 24px;">
+        <div class="hero-content" style="gap: 16px;">
+          <div class="hero-text">
+            <div class="welcome-badge">
+              <i class="fa-solid fa-comments"></i>
+              <span>Reviews</span>
+            </div>
+            <h1 class="hero-title" id="eventTitle">Event Reviews</h1>
+            <p class="hero-description" id="eventStats">Loading reviews...</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tickets-section">
+        <div class="section-header-flex" style="margin-bottom: 20px;">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-filter"></i> Sort Reviews</h2>
+          </div>
+          <div class="sort-controls">
+            <button class="sort-btn active" onclick="sortReviews('top')" data-sort="top">
+              <i class="fa-solid fa-fire"></i> Top Reviews
+            </button>
+            <button class="sort-btn" onclick="sortReviews('newest')" data-sort="newest">
+              <i class="fa-solid fa-clock"></i> Newest First
+            </button>
+            <button class="sort-btn" onclick="sortReviews('oldest')" data-sort="oldest">
+              <i class="fa-solid fa-history"></i> Oldest First
+            </button>
+          </div>
+        </div>
+
+        <div id="reviewsList" class="reviews-list"></div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="pagination-container"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="copyright">&copy; 2025 Resrvetia Events Inc. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="js/api-service.js?v=2"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script>
+    let allReviews = [];
+    let currentPage = 1;
+    const reviewsPerPage = 10;
+    let currentSort = 'top';
+
+    function getEventId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    async function loadEventInfo() {
+      const eventId = getEventId();
+      if (!eventId) {
+        window.location.href = 'events.html';
+        return;
+      }
+
+      try {
+        const event = await EventsAPI.getEvent(eventId);
+        document.getElementById('eventTitle').textContent = event.title;
+      } catch (error) {
+        console.error('Failed to load event:', error);
+      }
+    }
+
+    async function loadReviews() {
+      const eventId = getEventId();
+      if (!eventId) return;
+
+      try {
+        const response = await ReviewsAPI.listEventReviews(eventId, 1, 1000);
+        allReviews = response.reviews || [];
+        // Normalize backend name field for agency and user views
+        const likes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+        allReviews = allReviews.map(review => ({
+          ...review,
+          user_name: review.user_full_name || review.user_name || 'Anonymous',
+          likes: likes[review.id]?.likes || 0,
+          dislikes: likes[review.id]?.dislikes || 0
+        }));
+
+        updateStats();
+        sortReviews(currentSort, false);
+      } catch (error) {
+        console.error('Failed to load reviews:', error);
+        document.getElementById('reviewsList').innerHTML = `
+          <div class="empty-state-modern">
+            <h3>No reviews yet</h3>
+            <p>Be the first to share your thoughts about this event!</p>
+          </div>`;
+      }
+    }
+
+    function updateStats() {
+      const avgRating = allReviews.length > 0 
+        ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)
+        : 0;
+      document.getElementById('eventStats').textContent = 
+        `${allReviews.length} reviews • Average rating: ${avgRating}/5 ⭐`;
+    }
+
+    function sortReviews(sortType, reload = true) {
+      if (reload) {
+        currentSort = sortType;
+        currentPage = 1;
+      }
+      
+      // Update active button
+      document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sort === sortType);
+      });
+
+      let sorted = [...allReviews];
+      
+      switch(sortType) {
+        case 'top':
+          sorted.sort((a, b) => (b.likes - b.dislikes) - (a.likes - a.dislikes));
+          break;
+        case 'newest':
+          sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+        case 'oldest':
+          sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+          break;
+      }
+
+      renderReviews(sorted);
+      renderPagination(sorted.length);
+    }
+
+    function renderReviews(reviews) {
+      const start = (currentPage - 1) * reviewsPerPage;
+      const end = start + reviewsPerPage;
+      const pageReviews = reviews.slice(start, end);
+      
+      const list = document.getElementById('reviewsList');
+      const currentUser = getLoggedInUser();
+      const userLikes = JSON.parse(localStorage.getItem('userReviewActions') || '{}');
+
+      if (pageReviews.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state-modern">
+            <h3>No reviews on this page</h3>
+            <p>Try changing the page or sorting options.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = pageReviews.map(review => {
+        const userAction = userLikes[review.id];
+        const netScore = review.likes - review.dislikes;
+        
+        return `
+          <div class="review-card-modern">
+            <div class="review-header-modern">
+              <div class="review-user-modern">
+                <div class="review-avatar">${review.user_name.charAt(0).toUpperCase()}</div>
+                <div>
+                  <div class="review-user-name">${review.user_name}</div>
+                  <div class="review-date">${formatDate(review.created_at)}</div>
+                </div>
+              </div>
+              <div class="review-rating-modern">
+                ${renderStars(review.rating)}
+              </div>
+            </div>
+            <div class="review-comment-modern">${review.comment || 'No comment provided.'}</div>
+            <div class="review-actions-modern">
+              <div class="review-likes">
+                <button class="like-btn ${userAction === 'like' ? 'active' : ''}" 
+                        onclick="handleLike(${review.id})" 
+                        title="Helpful">
+                  <i class="fa-solid fa-thumbs-up"></i>
+                  <span>${review.likes}</span>
+                </button>
+                <button class="dislike-btn ${userAction === 'dislike' ? 'active' : ''}" 
+                        onclick="handleDislike(${review.id})" 
+                        title="Not helpful">
+                  <i class="fa-solid fa-thumbs-down"></i>
+                  <span>${review.dislikes}</span>
+                </button>
+                <span class="net-score ${netScore > 0 ? 'positive' : netScore < 0 ? 'negative' : ''}">
+                  ${netScore > 0 ? '+' : ''}${netScore}
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStars(rating) {
+      return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function renderPagination(totalReviews) {
+      const totalPages = Math.ceil(totalReviews / reviewsPerPage);
+      const container = document.getElementById('pagination');
+
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = '<div class="pagination">';
+      
+      // Previous button
+      if (currentPage > 1) {
+        html += `<button class="page-btn" onclick="changePage(${currentPage - 1})">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>`;
+      }
+
+      // Page numbers
+      const maxVisible = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+      
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+
+      if (startPage > 1) {
+        html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+        if (startPage > 2) html += `<span class="page-dots">...</span>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" 
+                         onclick="changePage(${i})">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="page-dots">...</span>`;
+        html += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+      }
+
+      // Next button
+      if (currentPage < totalPages) {
+        html += `<button class="page-btn" onclick="changePage(${currentPage + 1})">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>`;
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      sortReviews(currentSort, false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function handleLike(reviewId) {
+      const userLikes = JSON.parse(localStorage.getItem('userReviewActions') || '{}');
+      const reviewLikes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+      
+      if (!reviewLikes[reviewId]) {
+        reviewLikes[reviewId] = { likes: 0, dislikes: 0 };
+      }
+
+      if (userLikes[reviewId] === 'like') {
+        // Remove like
+        delete userLikes[reviewId];
+        reviewLikes[reviewId].likes--;
+      } else {
+        // Add like
+        if (userLikes[reviewId] === 'dislike') {
+          reviewLikes[reviewId].dislikes--;
+        }
+        userLikes[reviewId] = 'like';
+        reviewLikes[reviewId].likes++;
+      }
+
+      localStorage.setItem('userReviewActions', JSON.stringify(userLikes));
+      localStorage.setItem('reviewLikes', JSON.stringify(reviewLikes));
+      
+      loadReviews();
+    }
+
+    function handleDislike(reviewId) {
+      const userLikes = JSON.parse(localStorage.getItem('userReviewActions') || '{}');
+      const reviewLikes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+      
+      if (!reviewLikes[reviewId]) {
+        reviewLikes[reviewId] = { likes: 0, dislikes: 0 };
+      }
+
+      if (userLikes[reviewId] === 'dislike') {
+        // Remove dislike
+        delete userLikes[reviewId];
+        reviewLikes[reviewId].dislikes--;
+      } else {
+        // Add dislike
+        if (userLikes[reviewId] === 'like') {
+          reviewLikes[reviewId].likes--;
+        }
+        userLikes[reviewId] = 'dislike';
+        reviewLikes[reviewId].dislikes++;
+      }
+
+      localStorage.setItem('userReviewActions', JSON.stringify(userLikes));
+      localStorage.setItem('reviewLikes', JSON.stringify(reviewLikes));
+      
+      loadReviews();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadEventInfo();
+      loadReviews();
+    });
+  </script>
+
+  <style>
+    .sort-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sort-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sort-btn:hover {
+      border-color: var(--brand-primary);
+      color: var(--text-white);
+      background: rgba(236, 72, 153, 0.1);
+    }
+
+    .sort-btn.active {
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary));
+      border-color: var(--brand-primary);
+      color: white;
+      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+    }
+
+    .reviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .review-card-modern {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8));
+      border: 1px solid rgba(236, 72, 153, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .review-card-modern:hover {
+      border-color: rgba(236, 72, 153, 0.4);
+      box-shadow: 0 8px 25px rgba(236, 72, 153, 0.15);
+    }
+
+    .review-header-modern {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .review-user-modern {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .review-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .review-user-name {
+      color: var(--text-white);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .review-date {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .review-rating-modern {
+      font-size: 1.2rem;
+    }
+
+    .review-comment-modern {
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .review-actions-modern {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .review-likes {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .like-btn, .dislike-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .like-btn:hover {
+      border-color: #10b981;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .like-btn.active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #10b981;
+    }
+
+    .dislike-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .dislike-btn.active {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .net-score {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+
+    .net-score.positive {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .net-score.negative {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .page-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-light);
+      color: var(--text-white);
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      min-width: 45px;
+    }
+
+    .page-btn:hover {
+      border-color: var(--brand-primary);
+      background: rgba(236, 72, 153, 0.1);
+    }
+
+    .page-btn.active {
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary));
+      border-color: var(--brand-primary);
+      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+    }
+
+    .page-dots {
+      color: var(--text-muted);
+      padding: 0 8px;
+    }
+
+    @media (max-width: 768px) {
+      .sort-controls {
+        width: 100%;
+      }
+
+      .sort-btn {
+        flex: 1;
+        min-width: 140px;
+        justify-content: center;
+      }
+
+      .section-header-flex {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .review-header-modern {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .review-rating-modern {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</body>
+</html>
