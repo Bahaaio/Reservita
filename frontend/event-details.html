@@ -1126,7 +1126,8 @@
             1,
             100,
           );
-          const reviews = response.reviews || [];
+          const reviews = response.items || [];
+          console.log("Fetched reviews:", reviews);
 
           if (reviews.length === 0) {
             document.getElementById("topReviewsSection").innerHTML = `
@@ -1139,44 +1140,48 @@
             return;
           }
 
-          // Load likes from localStorage and normalize name field
-          const likes = JSON.parse(localStorage.getItem("reviewLikes") || "{}");
-          const reviewsWithLikes = reviews.map((review) => ({
-            ...review,
-            user_name: review.user_full_name || review.user_name || "Anonymous",
-            likes: likes[review.id]?.likes || 0,
-            dislikes: likes[review.id]?.dislikes || 0,
-            score:
-              (likes[review.id]?.likes || 0) -
-              (likes[review.id]?.dislikes || 0),
-          }));
-
-          // Sort by score (top reviews)
-          const topReviews = reviewsWithLikes
-            .sort((a, b) => b.score - a.score)
+          // Sort by rating (highest first), then by most recent
+          const topReviews = reviews
+            .sort((a, b) => {
+              if (b.rating !== a.rating) {
+                return b.rating - a.rating;
+              }
+              return new Date(b.created_at) - new Date(a.created_at);
+            })
             .slice(0, 3);
 
           const listEl = document.getElementById("topReviewsList");
           listEl.innerHTML = topReviews
-            .map(
-              (review) => `
+            .map((review) => {
+              const userName =
+                review.user_full_name || review.user_name || "Anonymous";
+              const reviewDate = new Date(review.created_at).toLocaleDateString(
+                "en-US",
+                {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                },
+              );
+
+              return `
                     <div class="top-review-card">
                         <div class="review-header-top">
                             <div class="review-user-top">
-                                <div class="review-avatar-small">${(review.user_name || "U").charAt(0).toUpperCase()}</div>
+                                <div class="review-avatar-small">${userName.charAt(0).toUpperCase()}</div>
                                 <div>
-                                    <div class="review-user-name-small">${review.user_name}</div>
+                                    <div class="review-user-name-small">${userName}</div>
                                     <div class="review-rating-top">${"⭐".repeat(review.rating)}</div>
                                 </div>
                             </div>
-                            <div class="review-score-badge ${review.score > 0 ? "positive" : ""}">
-                                <i class="fa-solid fa-thumbs-up"></i> ${review.score > 0 ? "+" : ""}${review.score}
+                            <div class="review-date-badge">
+                                <i class="fa-solid fa-calendar"></i> ${reviewDate}
                             </div>
                         </div>
                         <div class="review-comment-top">${review.comment || "No comment provided."}</div>
                     </div>
-                `,
-            )
+                `;
+            })
             .join("");
 
           document.getElementById("viewAllReviewsBtn").innerHTML = `
@@ -1254,21 +1259,16 @@
         margin-top: 2px;
       }
 
-      .review-score-badge {
+      .review-date-badge {
         background: rgba(255, 255, 255, 0.05);
         color: var(--text-muted);
         padding: 6px 12px;
         border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.85rem;
+        font-weight: 600;
+        font-size: 0.8rem;
         display: flex;
         align-items: center;
         gap: 6px;
-      }
-
-      .review-score-badge.positive {
-        background: rgba(16, 185, 129, 0.15);
-        color: #10b981;
       }
 
       .review-comment-top {

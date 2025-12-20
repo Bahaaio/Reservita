@@ -105,8 +105,8 @@
       if (!eventId) return;
 
       try {
-        const response = await ReviewsAPI.listEventReviews(eventId, 1, 1000);
-        allReviews = response.reviews || [];
+        const response = await ReviewsAPI.listEventReviews(eventId, 1, 50);
+        allReviews = response.items || [];
         // Normalize backend name field for agency and user views
         const likes = JSON.parse(localStorage.getItem('reviewLikes') || '{}');
         allReviews = allReviews.map(review => ({
