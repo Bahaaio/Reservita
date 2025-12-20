@@ -247,6 +247,9 @@ class TicketService:
         return TicketResponse(
             id=ticket.id,
             event_id=event.id,
+            event_title=event.title,
+            event_starts_at=event.starts_at,
+            event_venue=event.venue,
             status=ticket.status,
             purchased_at=ticket.purchased_at,
             seat_number=ticket.seat_number,

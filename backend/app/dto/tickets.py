@@ -20,6 +20,9 @@ class TicketResponse(BaseModel):
 
     id: int
     event_id: int
+    event_title: str
+    event_starts_at: datetime
+    event_venue: str
     status: TicketStatus
     purchased_at: datetime
     seat_number: int
