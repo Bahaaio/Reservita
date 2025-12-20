@@ -1,12 +1,7 @@
-// Ticket Reservation System Database Schema
-// Generated from SQLModel models
-
-Project ticket_reservation {
+Project reservita {
   database_type: 'SQLite'
-  Note: 'Event ticket reservation and booking system'
 }
 
-// Enums
 Enum seat_type {
   regular
   vip
@@ -25,35 +20,34 @@ Enum ticket_status {
   cancelled
 }
 
-// Main Tables
-Table users {
+Table user {
   id integer [pk, increment]
   full_name varchar [not null]
-  email varchar [unique, not null, note: 'User email address']
+  email varchar [unique, not null]
   hashed_password varchar [not null]
   phone_number varchar [not null]
-  is_agency boolean [not null, note: 'True if user can create events']
+  is_agency boolean [not null, default: false]
   
   indexes {
-    email
+    email [unique]
   }
-  
-  Note: 'Users can be regular users or agencies that create events'
 }
 
-Table events {
+Table event {
   id integer [pk, increment]
   title varchar [not null]
-  description text
+  description text [not null]
   category event_category [not null, default: 'other']
   city varchar [not null]
   venue varchar [not null]
   address varchar [not null]
   starts_at timestamp [not null]
   ends_at timestamp [not null]
-  ticket_price float [not null, note: 'Price >= 0']
-  vip_ticket_price float [not null, note: 'Price >= 0']
-  creator_id integer [not null, ref: > users.id]
+  ticket_price float [not null]
+  vip_ticket_price float [not null]
+  creator_id integer [not null, ref: > user.id]
+  total_seats integer [not null, default: 100]
+  vip_seats_count integer [not null, default: 10]
   
   indexes {
     title
@@ -62,75 +56,46 @@ Table events {
     starts_at
     ends_at
   }
-  
-  Note: 'Events created by agencies with categorization and location details'
 }
 
-Table event_banners {
-  id integer [pk, increment]
-  event_id integer [not null, ref: > events.id]
-  uuid varchar [not null, note: 'UUID for banner file reference']
-  
-  Note: 'Multiple banner images per event'
+Table eventbanner {
+  id uuid [pk]
+  event_id integer [not null, ref: > event.id]
 }
 
-Table event_seats {
-  event_id integer [pk, ref: > events.id]
+Table eventseat {
+  event_id integer [pk, ref: > event.id]
   seat_number integer [pk]
   seat_type seat_type [not null, default: 'regular']
-  
-  Note: 'Seats for each event with composite primary key (event_id, seat_number). Currently hardcoded: 10 VIP + 90 regular per event'
 }
 
-Table tickets {
+Table ticket {
   id integer [pk, increment]
-  user_id integer [not null, ref: > users.id]
-  event_id integer [not null, ref: > events.id]
+  user_id integer [not null, ref: > user.id]
+  event_id integer [not null, ref: > event.id]
   seat_number integer [not null]
-  qr_code varchar [unique, not null, note: 'Unique QR code for ticket validation']
+  qr_code varchar [not null]
   status ticket_status [not null, default: 'confirmed']
   purchased_at timestamp [not null, default: `now()`]
   cancelled_at timestamp [null]
   
   indexes {
-    (event_id, seat_number) [unique, name: 'unique_event_seat_ticket']
-    qr_code
+    (event_id, seat_number) [unique, name: 'idx_unique_confirmed_seat']
     status
   }
-  
-  Note: 'User ticket bookings with composite foreign key to event_seats and unique constraint to prevent double-booking'
 }
 
-Table reviews {
+Table review {
   id integer [pk, increment]
-  ticket_id integer [unique, not null, ref: - tickets.id]
-  user_id integer [not null, ref: > users.id]
-  event_id integer [not null, ref: > events.id]
-  rating float [not null, note: 'Rating between 1.0 and 5.0']
+  ticket_id integer [unique, not null, ref: - ticket.id]
+  user_id integer [not null, ref: > user.id]
+  event_id integer [not null, ref: > event.id]
+  rating float [not null]
   comment text [null]
   created_at timestamp [not null, default: `now()`]
-  
-  Note: 'One review per ticket. user_id and event_id are denormalized for query performance. Comment is optional'
 }
 
-Table favorite_events {
-  user_id integer [pk, ref: > users.id]
-  event_id integer [pk, ref: > events.id]
-  
-  Note: 'Many-to-many relationship for users favoriting events'
+Table favoriteevent {
+  user_id integer [pk, ref: > user.id]
+  event_id integer [pk, ref: > event.id]
 }
-
-// Composite Foreign Key (not directly supported in DBML, documented here)
-// tickets.(event_id, seat_number) -> event_seats.(event_id, seat_number)
-
-// Relationships Summary:
-// - User (agency) creates many Events (one-to-many)
-// - Event has many EventBanners (one-to-many)
-// - Event has many EventSeats (one-to-many)
-// - User makes many Tickets (one-to-many)
-// - Event has many Tickets (one-to-many)
-// - Ticket references one EventSeat via composite FK (many-to-one)
-// - Ticket has one Review (one-to-one)
-// - User has many Reviews (one-to-many)
-// - Event has many Reviews (one-to-many)
-// - Users can favorite many Events (many-to-many via favorite_events)
