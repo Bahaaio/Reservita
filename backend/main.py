@@ -29,7 +29,10 @@ for router in routers:
 
 app.include_router(health_router)
 
-origins = ["http://127.0.0.1:8080"]
+origins = [
+    "http://127.0.0.1:8080",
+    "https://bahaaio.github.io",
+]
 
 app.add_middleware(
     CORSMiddleware,
