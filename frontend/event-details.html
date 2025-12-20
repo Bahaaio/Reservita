@@ -666,44 +666,6 @@
             }
         }
 
-        function confirmBookingOld() {
-            // OLD LOCAL STORAGE VERSION - KEPT FOR REFERENCE
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            
-            if (!currentUser) {
-                window.location.href = 'signin.html?redirect=event-details.html?id=' + window.currentEvent.id;
-                return;
-            }
-
-            const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
-            const seatList = selectedSeats.map(s => s.id).join(', ');
-
-            const booking = {
-                eventId: window.currentEvent.id,
-                eventTitle: window.currentEvent.title,
-                seats: seatList,
-                quantity: selectedSeats.length,
-                totalPrice: total,
-                date: new Date().toISOString()
-            };
-
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const userIndex = users.findIndex(u => u.email === currentUser.email);
-            
-            if (userIndex !== -1) {
-                if (!users[userIndex].bookings) {
-                    users[userIndex].bookings = [];
-                }
-                users[userIndex].bookings.push(booking);
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-            }
-
-            // Redirect to payment page
-            const eventTitle = encodeURIComponent(window.currentEvent.title);
-            window.location.href = `payment.html?event=${eventTitle}&quantity=${selectedSeats.length}&total=${total}`;
-        }
-
         function closeSuccess() {
             document.getElementById('successOverlay').classList.remove('active');
         }

@@ -131,7 +131,7 @@ async function removeFromWishlist(eventId) {
 }
 
 async function clearAllWishlist() {
-    if (confirm('Are you sure you want to remove all events from your wishlist?')) {
+    if (await showWishlistConfirm('Are you sure you want to remove all events from your wishlist?')) {
         try {
             await FavoritesAPI.clearAllFavorites();
             await loadWishlist();
@@ -140,6 +140,25 @@ async function clearAllWishlist() {
             console.error('Error clearing wishlist:', error);
             showNotification('Failed to clear wishlist: ' + (error.message || 'Unknown error'));
         }
+    }
+}
+
+let _wishlistConfirmResolve = null;
+function showWishlistConfirm(message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('wishlistConfirmModal');
+        document.getElementById('wishlistConfirmMessage').textContent = message;
+        modal.style.display = 'flex';
+        _wishlistConfirmResolve = resolve;
+    });
+}
+
+function closeWishlistConfirm(result) {
+    const modal = document.getElementById('wishlistConfirmModal');
+    modal.style.display = 'none';
+    if (_wishlistConfirmResolve) {
+        _wishlistConfirmResolve(result);
+        _wishlistConfirmResolve = null;
     }
 }
 
