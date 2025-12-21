@@ -3,7 +3,11 @@
  * Base URL: http://127.0.0.1:8000
  */
 
-const API_BASE_URL = "https://reservita.leapcell.app";
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://127.0.0.1:8000" // Local development
+    : "https://reservita.leapcell.app"; // Production (GitHub Pages)
 
 // ================================
 // HELPER FUNCTIONS
