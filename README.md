@@ -6,6 +6,10 @@ A full-stack event ticketing and reservation platform built with FastAPI and van
 
 Reservita is a ticket reservation system that allows agencies to create and manage events, users to browse and book tickets, and provides features like seat selection, QR code tickets, reviews, and favorites.
 
+## Gallery
+
+See **[gallery.md](gallery.md)** for visual documentation of all pages and features.
+
 ## Tech Stack
 
 ### Backend
