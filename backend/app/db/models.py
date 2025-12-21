@@ -113,7 +113,7 @@ class Ticket(SQLModel, table=True):
             "event_id",
             "seat_number",
             unique=True,
-            postgresql_where=text("status = 'confirmed'"),
+            postgresql_where=text("status = 'CONFIRMED'"),
         )
         if settings.DATABASE_URL.startswith("postgresql://")
         else Index(
