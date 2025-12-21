@@ -1,10 +1,13 @@
-# Reservita
-
-A full-stack event ticketing platform with intelligent seat selection, QR code verification, and real-time analytics.
+<div align="center">
+  <img src=".github/assets/logo.svg" alt="Reservita Events Logo" width="320"/>
+  
+  <p><em>A full-stack event ticketing platform with intelligent seat selection, QR code verification, and real-time analytics.</em></p>
 
 [![Live Demo](https://img.shields.io/badge/demo-live-success.svg)](https://bahaaio.github.io/Riservita/)
 [![API Docs](https://img.shields.io/badge/API-docs-orange.svg)](https://reservita.leapcell.app/docs)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+</div>
 
 ## ✨ Features
 
