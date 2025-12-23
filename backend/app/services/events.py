@@ -22,24 +22,21 @@ from app.dto.events import (
     EventRequest,
     EventResponse,
 )
+from app.services.dependencies import StorageServiceDep
 from app.util.files import (
-    delete_file,
-    get_banner_path,
-    get_image_response,
-    save_file,
-    validate_image_file,
+    get_banner_key,
+    to_image_response,
 )
 from fastapi import Depends, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 from fastapi_pagination import Page, Params, create_page
 from sqlmodel import case, col, delete, func, select
 
-# FIX: n+1
-
 
 class EventService:
-    def __init__(self, db: DBSession):
+    def __init__(self, db: DBSession, storage_service: StorageServiceDep):
         self.db = db
+        self.storage_service = storage_service
 
     def get_event(
         self, event_id: int, current_user: User | None = None
@@ -101,7 +98,6 @@ class EventService:
         offset = (params.page - 1) * params.size
         db_events = self.db.exec(query.offset(offset).limit(params.size)).all()
 
-        # FIX: n+1
         # 5. Map to Response
         events: list[EventResponse] = [
             self._event_to_response(event, current_user) for event in db_events
@@ -219,20 +215,23 @@ class EventService:
 
         # delete banners and their files
         for banner in event.banners:
-            delete_file(get_banner_path(banner.id))
+            key = get_banner_key(banner.id)
+            self.storage_service.delete(key)
         self.db.exec(delete(EventBanner).where(EventBanner.event_id == event_id))  # type:ignore[call-overload]
 
         # delete the event
         self.db.delete(event)
         self.db.commit()
 
-    def get_banner(self, banner_id: UUID) -> FileResponse:
+    def get_banner(self, banner_id: UUID) -> StreamingResponse:
         banner = self.db.get(EventBanner, banner_id)
 
         if not banner:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
-        return get_image_response(get_banner_path(banner_id))
+        key = get_banner_key(banner_id)
+        banner = self.storage_service.get(key)
+        return to_image_response(banner)
 
     def upload_banner(
         self, event_id: int, file: UploadFile, agency: User
@@ -250,8 +249,8 @@ class EventService:
 
         banner = EventBanner(event_id=event_id)
 
-        validate_image_file(file, settings.MAX_BANNER_SIZE_MB)
-        save_file(file, get_banner_path(banner.id))
+        key = get_banner_key(banner.id)
+        self.storage_service.put(file, key)
 
         self.db.add(banner)
         self.db.commit()
@@ -276,7 +275,8 @@ class EventService:
             # return 404 to avoid info leak
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Banner not found")
 
-        delete_file(get_banner_path(banner_id))
+        key = get_banner_key(banner_id)
+        self.storage_service.delete(key)
 
         self.db.delete(banner)
         self.db.commit()
@@ -407,8 +407,10 @@ class EventService:
         return float(avg_rating_result) if avg_rating_result else 0.0
 
 
-def get_event_service(db: DBSession) -> EventService:
-    return EventService(db)
+def get_event_service(
+    db: DBSession, storage_service: StorageServiceDep
+) -> EventService:
+    return EventService(db, storage_service)
 
 
 EventServiceDep = Annotated[EventService, Depends(get_event_service)]

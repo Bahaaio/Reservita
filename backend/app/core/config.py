@@ -26,6 +26,23 @@ class Settings(BaseSettings):
     MAX_BANNER_SIZE_MB: int = 10
     MAX_BANNERS_PER_EVENT: int = 5
 
+    # S3
+    AWS_S3_REGION: str = "eu-west-1"
+    AWS_S3_BUCKET: str | None = None
+    AWS_S3_ENDPOINT_URL: str | None = None
+    AWS_S3_ACCESS_KEY_ID: str | None = None
+    AWS_S3_SECRET_ACCESS_KEY: str | None = None
+
+    @computed_field
+    @property
+    def s3_enabled(self) -> bool:
+        return bool(
+            self.AWS_S3_BUCKET
+            and self.AWS_S3_ENDPOINT_URL
+            and self.AWS_S3_ACCESS_KEY_ID
+            and self.AWS_S3_SECRET_ACCESS_KEY
+        )
+
     # QR Code
     QR_CODE_BOX_SIZE: int = 8
     QR_CODE_BORDER_SIZE: int = 2

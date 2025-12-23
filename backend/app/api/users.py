@@ -3,7 +3,7 @@ from app.dto.users import UpdateUserRequest, UserResponse
 from app.services.auth import AuthServiceDep, CurrentUser
 from app.services.users import UserServiceDep
 from fastapi import APIRouter, UploadFile, status
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(prefix="/users/me", tags=["Profile"])
 
@@ -25,7 +25,9 @@ def update_profile(
 
 
 @router.get("/avatar", description="Get the avatar of the current user")
-def get_avatar(current_user: CurrentUser, user_service: UserServiceDep) -> FileResponse:
+def get_avatar(
+    current_user: CurrentUser, user_service: UserServiceDep
+) -> StreamingResponse:
     return user_service.get_avatar(current_user)
 
 

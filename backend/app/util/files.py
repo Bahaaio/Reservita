@@ -1,18 +1,17 @@
-import os
-from pathlib import Path
+from io import BytesIO
 from uuid import UUID
 
 from app.core.config import settings
 from fastapi import HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 
 
-def get_avatar_path(user_id: int) -> str:
+def get_avatar_key(user_id: int) -> str:
     """Get the file path for a user's avatar"""
     return f"{settings.AVATAR_UPLOAD_DIR}/{user_id}.jpg"
 
 
-def get_banner_path(banner_id: UUID) -> str:
+def get_banner_key(banner_id: UUID) -> str:
     """Get the file path for an event banner"""
     return f"{settings.BANNER_UPLOAD_DIR}/{banner_id}.jpg"
 
@@ -21,8 +20,8 @@ def validate_image_file(file: UploadFile, max_size_mb: int = 5):
     """Validate that uploaded file is an image and within size limit"""
 
     # Validate file type
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(400, "File must be an image")
+    if not file.content_type or not file.content_type.startswith("image/jpeg"):
+        raise HTTPException(400, "File must be a jpeg image")
 
     # Validate file size
     file.file.seek(0, 2)  # Seek to end
@@ -34,31 +33,5 @@ def validate_image_file(file: UploadFile, max_size_mb: int = 5):
         raise HTTPException(400, f"File size exceeds maximum of {max_size_mb}MB")
 
 
-def save_file(file: UploadFile, file_path: str):
-    # Create directory if it doesn't exist
-    dir_path = Path(file_path).parent
-    dir_path.mkdir(parents=True, exist_ok=True)
-
-    # Save file (overwrites if exists)
-    try:
-        with Path(file_path).open("wb") as f:
-            f.write(file.file.read())
-    except Exception as e:
-        raise HTTPException(500, f"Failed to save file: {str(e)}")
-
-
-def get_image_response(file_path: str) -> FileResponse:
-    check_file_exists(file_path)
-    return FileResponse(path=file_path, media_type="image/jpeg")
-
-
-def delete_file(file_path: str):
-    path = Path(file_path)
-
-    check_file_exists(file_path)
-    path.unlink(missing_ok=True)
-
-
-def check_file_exists(file_path):
-    if not os.path.exists(file_path):
-        raise HTTPException(404, "File not found")
+def to_image_response(file: bytes) -> StreamingResponse:
+    return StreamingResponse(BytesIO(file), media_type="image/jpeg")
