@@ -21,7 +21,8 @@ class EmailService:
         return Template(template_content).render(context)
 
     def send_email(self, subject: str, email_to: str, html_content: str):
-        assert settings.emails_enabled, "no provided configuration for email variables"
+        if not settings.emails_enabled:
+            return
 
         message = emails.Message(
             subject=subject,
