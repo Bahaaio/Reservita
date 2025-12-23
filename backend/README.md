@@ -81,6 +81,21 @@ Settings are managed using Pydantic Settings in [config.py](./app/core/config.py
 | `EMAILS_FROM_EMAIL` | Sender email address |
 | `EMAILS_FROM_NAME`  | Sender name          |
 
+### Storage Settings (S3)
+
+The application supports two storage backends:
+
+- **Local Storage** - For development (default if AWS credentials not set)
+- **AWS S3 / Compatible Services** - For production (auto-enabled when credentials are configured)
+
+| Setting                    | Default     | Description                              |
+| -------------------------- | ----------- | ---------------------------------------- |
+| `AWS_S3_REGION`            | `eu-west-1` | AWS region for S3                        |
+| `AWS_S3_BUCKET`            | `None`      | S3 bucket name for file uploads          |
+| `AWS_S3_ENDPOINT_URL`      | `None`      | S3 endpoint (for S3-compatible services) |
+| `AWS_S3_ACCESS_KEY_ID`     | `None`      | AWS access key ID                        |
+| `AWS_S3_SECRET_ACCESS_KEY` | `None`      | AWS secret access key                    |
+
 > All settings can be overridden using environment variables.
 
 ## Database Schema

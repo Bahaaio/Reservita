@@ -1,6 +1,6 @@
 <div align="center">
   <img src=".github/assets/logo.svg" alt="Reservita Events Logo" width="320"/>
-  
+
   <p><em>A full-stack event ticketing platform with intelligent seat selection, QR code verification, and real-time analytics.</em></p>
 
 [![Live Demo](https://img.shields.io/badge/demo-live-success.svg)](https://bahaaio.github.io/Reservita/)
@@ -94,6 +94,7 @@ Visit `http://127.0.0.1:8080` in your browser.
 - **[Uvicorn](https://www.uvicorn.org/)** - Lightning-fast ASGI server
 - **[PyJWT](https://pyjwt.readthedocs.io/)** - JSON Web Token implementation
 - **[Argon2](https://github.com/hynek/argon2-cffi)** - Secure password hashing
+- **[Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)** - AWS S3 storage (with local fallback)
 
 ### Frontend
 
