@@ -10,13 +10,13 @@ from fastapi import HTTPException, UploadFile, status
 
 class S3Service(StorageService):
     def __init__(self):
-        self.bucket = settings.AWS_S3_BUCKET
+        self.bucket = settings.S3_BUCKET
         self.client = boto3.client(
             "s3",
-            region_name=settings.AWS_S3_REGION,
-            endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-            aws_access_key_id=settings.AWS_S3_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_S3_SECRET_ACCESS_KEY,
+            region_name=settings.S3_REGION,
+            endpoint_url=settings.S3_ENDPOINT_URL,
+            aws_access_key_id=settings.S3_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.S3_SECRET_ACCESS_KEY,
         )
 
     def put(self, file: UploadFile, key: str) -> None:
