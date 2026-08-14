@@ -1,3 +1,5 @@
+
+
 <div align="center">
   <img src=".github/assets/logo.svg" alt="Reservita Events Logo" width="320"/>
 
@@ -69,7 +71,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-The API will be running at `http://localhost:8000`
+The API will be running at `http://localhost:8000`. The SQLite database (`app.db`) will be created automatically in the `backend/` directory on first startup.
 
 > See [backend/README.md](backend/README.md) for configuration options and API documentation.
 
